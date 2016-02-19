@@ -113,8 +113,8 @@ bool SceneSetup()
 	{
 		// Some random trees
 		EntityManager.CreateEntity( "Tree", "Tree",
-			                        CVector3(Random(-200.0f, 30.0f), 0.0f, Random(40.0f, 150.0f)),
-			                        CVector3(0.0f, Random(0.0f, 2.0f * kfPi), 0.0f) );
+									CVector3(Random(-200.0f, 30.0f), 0.0f, Random(40.0f, 150.0f)),
+									CVector3(0.0f, Random(0.0f, 2.0f * kfPi), 0.0f) );
 	}
 
 
@@ -227,9 +227,10 @@ void RenderScene( float updateTime )
 
 	// Render entities and draw on-screen text
 	EntityManager.RenderAllEntities();
+	RenderEntityText(EntityManager);
 	RenderSceneText( updateTime );
 
-    // Present the backbuffer contents to the display
+	// Present the backbuffer contents to the display
 	SwapChain->Present( 0, 0 );
 }
 
@@ -272,8 +273,33 @@ void RenderSceneText( float updateTime )
 		RenderText( outText.str(), 0, 0, 1.0f, 1.0f, 0.0f );
 		outText.str("");
 	}
+
 }
 
+void RenderEntityText(CEntityManager& EntityManager)
+{
+	string name = "";
+	string templateName = "";
+	EntityManager.BeginEnumEntities(name, templateName, "Tank");
+	CEntity* theEntity = EntityManager.EnumEntity();
+
+	while (theEntity)
+	{
+		CVector3 thePosition = theEntity->Position();
+		thePosition.y += 1.5f;
+		TInt32 x, y;
+		if (MainCamera->PixelFromWorldPt(thePosition, ViewportWidth, ViewportHeight, &x, &y))
+		{
+			RenderText(theEntity->GetName(), x, y, 0.0f, 0.0f, 0.0f, true );
+			RenderText(theEntity->GetName(), x - 2, y - 2, 1.0f, 1.0f, 0.0f, true);
+
+		}
+
+		theEntity = EntityManager.EnumEntity();
+	}
+
+	EntityManager.EndEnumEntities();
+}
 
 // Update the scene between rendering
 void UpdateScene( float updateTime )
@@ -288,7 +314,7 @@ void UpdateScene( float updateTime )
 
 	// Move the camera
 	MainCamera->Control( Key_Up, Key_Down, Key_Left, Key_Right, Key_W, Key_S, Key_A, Key_D, 
-	                     CameraMoveSpeed * updateTime, CameraRotSpeed * updateTime );
+						 CameraMoveSpeed * updateTime, CameraRotSpeed * updateTime );
 }
 
 

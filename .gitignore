@@ -1,0 +1,17 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+*.suo
+*.tlog
+*.sbr
+*.obj
+*.exe
+*.opendb
+/TankAssignment.sdf
+*.pdb
+*.ilk
+*.bsc
+/Debug/vc140.idb
+/Debug/tankassignment.obj.enc
+/Debug/TankAssignment.log

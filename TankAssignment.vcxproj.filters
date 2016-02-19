@@ -202,5 +202,6 @@
     <None Include="Source\Render\TankAssignment.fx">
       <Filter>Render</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

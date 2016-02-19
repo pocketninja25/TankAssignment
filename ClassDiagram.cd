@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="gen::CCamera">
+    <Position X="18.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQACAApEAAIAAEAoAgIAAIAAAiAgQACAAIHgAAQAEAg=</HashCode>
+      <FileName>Source\Scene\Camera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CEntityTemplate">
+    <Position X="1" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAABIAAAAAAAAAAAAAAAAEAAAAAAAAEQAQAgAAAABAA=</HashCode>
+      <FileName>Source\Scene\Entity.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CEntity">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAQEAAAAAEAAAQAgAAAAABABAAAgAAAAIBIwAAAABAA=</HashCode>
+      <FileName>Source\Scene\Entity.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CEntityManager">
+    <Position X="9.5" Y="0.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Typedef Name="gen::CEntityManager::TTemplates" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\EntityManager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="gen::CEntityManager::TTemplateIter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\EntityManager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="gen::CEntityManager::TEntities" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\EntityManager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="gen::CEntityManager::TEntityIter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\EntityManager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>CKCIAECAAAAAQECAIAAFAAAADAAMAYBCEGAgACAIAKA=</HashCode>
+      <FileName>Source\Scene\EntityManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CLight">
+    <Position X="17" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEACAAAAAAAAAAAAAAARQAAgAAAAiAAAAIAAQ=</HashCode>
+      <FileName>Source\Scene\Light.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CMessenger">
+    <Position X="11.5" Y="0.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Typedef Name="gen::CMessenger::TMessages" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\Messenger.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="gen::CMessenger::TMessageIter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\Messenger.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="gen::CMessenger::UIDMsgPair" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\Messenger.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAICAAAAAAIAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Source\Scene\Messenger.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CShellEntity">
+    <Position X="5.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Source\Scene\ShellEntity.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CTankTemplate">
+    <Position X="1" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAABAAAAAAgEAQBAACAEBIAAAAAAAAAA0AAAA=</HashCode>
+      <FileName>Source\Scene\TankEntity.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="gen::CTankEntity">
+    <Position X="3.25" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="gen::CTankEntity::EState">
+        <TypeIdentifier>
+          <NewMemberFileName>Source\Scene\TankEntity.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAABgAAAAAAACAAAEAEAAgAAQAAAAAAAAAQ=</HashCode>
+      <FileName>Source\Scene\TankEntity.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="gen::SMessage">
+    <Position X="13.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAAAAAABAQAAAAAgAAAAAAA=</HashCode>
+      <FileName>Source\Scene\Messenger.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Typedef Name="gen::TEntityUID" Collapsed="true">
+    <Position X="11.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Source\Scene\Entity.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="gen::TUInt32" Collapsed="true">
+    <Position X="11.5" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Source\Common\MSDefines.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Enum Name="gen::EMessageType">
+    <Position X="13.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAA=</HashCode>
+      <FileName>Source\Scene\Messenger.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

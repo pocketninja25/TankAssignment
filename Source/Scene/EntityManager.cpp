@@ -45,7 +45,7 @@ CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const strin
 	CEntityTemplate* newTemplate = new CEntityTemplate( type, name, mesh );
 
 	// Add the template name / template pointer pair to the map
-    m_Templates[name] = newTemplate;
+	m_Templates[name] = newTemplate;
 
 	return newTemplate;
 }
@@ -273,7 +273,6 @@ void CEntityManager::RenderAllEntities()
 		++entity;
 	}
 }
-
 
 } // namespace gen
 

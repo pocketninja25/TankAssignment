@@ -126,8 +126,8 @@ bool D3DSetup( HWND hWnd )
 	if( FAILED( g_pd3dDevice->CreateDepthStencilView( DepthStencil, NULL, &DepthStencilView ) )) return false;
 
 	// Create a font using D3DX helper functions
-    if (FAILED(D3DX10CreateFont( g_pd3dDevice, 12, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
-                                 DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &OSDFont ))) return false;
+	if (FAILED(D3DX10CreateFont( g_pd3dDevice, 12, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+								 DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &OSDFont ))) return false;
 
 	return true;
 }
@@ -166,22 +166,22 @@ void D3DShutdown()
 // Window message handler
 LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
-    switch( msg )
-    {
-        case WM_DESTROY:
+	switch( msg )
+	{
+		case WM_DESTROY:
 		{
-            PostQuitMessage( 0 );
-            return 0;
+			PostQuitMessage( 0 );
+			return 0;
 		}
 
-        case WM_SIZE:
+		case WM_SIZE:
 		{
 			// Resized window - reset device to match back buffer to new window size
 			if (gen::g_pd3dDevice && !gen::ResetDevice( hWnd ))
 			{
 				DestroyWindow( hWnd );
 			}
-            return 0;
+			return 0;
 		}
 
 		case WM_KEYDOWN:
@@ -202,54 +202,54 @@ LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 			gen::MouseX = MAKEPOINTS(lParam).x; 
 			gen::MouseY = MAKEPOINTS(lParam).y;
 		}
-    }
+	}
 
-    return DefWindowProc( hWnd, msg, wParam, lParam );
+	return DefWindowProc( hWnd, msg, wParam, lParam );
 }
 
 // Windows main function
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR, INT )
 {
-    // Register the window class
-    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
-                      GetModuleHandle(NULL), LoadIcon( NULL, IDI_APPLICATION ),
+	// Register the window class
+	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
+					  GetModuleHandle(NULL), LoadIcon( NULL, IDI_APPLICATION ),
 					  LoadCursor( NULL, IDC_ARROW ), NULL, NULL,
-                      "TankAssignment", NULL };
-    RegisterClassEx( &wc );
+					  "TankAssignment", NULL };
+	RegisterClassEx( &wc );
 
-    // Create the application's window
+	// Create the application's window
 	HWND hWnd = CreateWindow( "TankAssignment", "Tank Assignment",
-                              WS_OVERLAPPEDWINDOW, 100, 20, 1280, 960,
-                              NULL, NULL, wc.hInstance, NULL );
+							  WS_OVERLAPPEDWINDOW, 100, 20, 1280, 960,
+							  NULL, NULL, wc.hInstance, NULL );
 
-    // Initialize Direct3D
+	// Initialize Direct3D
 	if (gen::D3DSetup( hWnd ))
-    {
-        // Prepare the scene
-        if (gen::SceneSetup())
-        {
-            // Show the window
-            ShowWindow( hWnd, SW_SHOWDEFAULT );
-            UpdateWindow( hWnd );
+	{
+		// Prepare the scene
+		if (gen::SceneSetup())
+		{
+			// Show the window
+			ShowWindow( hWnd, SW_SHOWDEFAULT );
+			UpdateWindow( hWnd );
 
 			// Reset the timer for a timed game loop
 			gen::Timer.Reset();
 
-            // Enter the message loop
-            MSG msg;
-            ZeroMemory( &msg, sizeof(msg) );
-            while( msg.message != WM_QUIT )
-            {
-                if( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
-                {
-                    TranslateMessage( &msg );
-                    DispatchMessage( &msg );
-                }
-                else
+			// Enter the message loop
+			MSG msg;
+			ZeroMemory( &msg, sizeof(msg) );
+			while( msg.message != WM_QUIT )
+			{
+				if( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
+				{
+					TranslateMessage( &msg );
+					DispatchMessage( &msg );
+				}
+				else
 				{
 					// Render and update the scene - using variable timing
 					float updateTime = gen::Timer.GetLapTime();
-                    gen::RenderScene( updateTime );
+					gen::RenderScene( updateTime );
 					gen::UpdateScene( updateTime );
 
 					// Toggle fullscreen / windowed
@@ -267,12 +267,12 @@ INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR, INT )
 						DestroyWindow( hWnd );
 					}
 				}
-            }
-        }
-	    gen::SceneShutdown();
-    }
+			}
+		}
+		gen::SceneShutdown();
+	}
 	gen::D3DShutdown();
 
 	UnregisterClass( "TankAssignment", wc.hInstance );
-    return 0;
+	return 0;
 }

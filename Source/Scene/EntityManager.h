@@ -228,7 +228,6 @@ public:
 
 	// Render all entities - not the ideal method, OK for this example
 	void RenderAllEntities();
-
 		
 /////////////////////////////////////
 //	Private interface

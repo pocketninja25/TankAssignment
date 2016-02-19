@@ -27,6 +27,11 @@ void RenderScene( float updateTime );
 // Render on-screen text each frame
 void RenderSceneText( float updateTime );
 
+// Render the name of entities on the screen each frame
+class CEntityManager;
+void RenderEntityText(CEntityManager& EntityManager);
+
+
 // Update the scene between rendering
 void UpdateScene( float updateTime );
 
