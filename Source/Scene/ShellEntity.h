@@ -42,6 +42,8 @@ public:
 	(
 		CEntityTemplate* entityTemplate,
 		TEntityUID       UID,
+		const TFloat32&	 speed,
+		const TInt32&	 lifeTime,
 		const string&    name = "",
 		const CVector3&  position = CVector3::kOrigin, 
 		const CVector3&  rotation = CVector3( 0.0f, 0.0f, 0.0f ),
@@ -69,9 +71,15 @@ public:
 private:
 
 	/////////////////////////////////////
+	// State Checks
+
+	bool IsAlive();
+
+	/////////////////////////////////////
 	// Data
 
-	// Add your shell data here
+	TInt32 m_LifeTime;		//How long the shell will live (assuming it doesnt die for some other reason)
+	TFloat32 m_Speed;		// Current speed (in facing direction)
 };
 
 

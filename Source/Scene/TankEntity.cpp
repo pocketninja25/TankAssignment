@@ -75,7 +75,8 @@ CTankEntity::CTankEntity
 	// Initialise other tank data and state
 	m_Speed = 0.0f;
 	m_HP = m_TankTemplate->GetMaxHP();
-	m_State = Go;
+	m_ShellsFired = 0;
+	m_State = State_Inactive;
 	m_Timer = 0.0f;
 }
 
@@ -90,37 +91,141 @@ bool CTankEntity::Update( TFloat32 updateTime )
 	while (Messenger.FetchMessage( GetUID(), &msg ))
 	{
 		// Set state variables based on received messages
+		if (m_State == State_Inactive)
+		{
+			//React to message only in the inactive state
+			switch (msg.type)
+			{
+				case Msg_Start:
+					MoveToState(State_Patrol);
+					break;
+			}
+		}
+		// React to Messages regardless of current state
 		switch (msg.type)
 		{
-			case Msg_Go:
-				m_State = Go;
-				break;
-			case Msg_Stop:
-				m_State = Stop;
-				break;
+		case Msg_Hit:
+			TakeDamage(20);
+			MoveToState(State_Evade);
+			break;
+		case Msg_Stop:
+			MoveToState(State_Inactive);
+			break;
 		}
 	}
 
+	if (!IsAlive())	//If the entity is dead after processing messages, dont bother calculating behaviour, return false (kill this entity)
+	{
+		return false;
+	}
+
+
 	// Tank behaviour
-	// Only move if in Go state
-	if (m_State == Go)
+	switch (m_State)
 	{
-		// Cycle speed up and down using a sine wave - just demonstration behaviour
-		//**** Variations on this sine wave code does not count as patrolling - for the
-		//**** assignment the tank must move naturally between two specific points
-		m_Speed = 10.0f * Sin( m_Timer * 4.0f );
-		m_Timer += updateTime;
+	case State_Inactive:
+		//Remain Stationary
+		break;
+	case State_Patrol:
+		//TODO: The tank patrols back and forth between two points, facing its direction of movement
+		//Turret should rotate slowly
+		//When turret points within 15° of an enemy (either side) - go to aim state
+		break;
+	case State_Aim:
+		//TODO: Stop moving and count down a timer (initialised to 1 second)
+		//Turret rotates quicker to try point at enemy exactly
+		//When timer = 0, create a shell (fire turret) - go to evade state
+		//TODO: Use FireShell function to fire a shell
+		break;
+	case State_Evade:
+		//TODO: Move toward (already selected in state transition function) position
+		// Rotate turret (quickly) to the tank's forward direction
+		// When tank reaches point (probably do point to sphere collision) - go to patrol state
+		break;
+	default:
+		break;
 	}
-	else
+	
+		// Only move if in Go state
+		//// Cycle speed up and down using a sine wave - just demonstration behaviour
+		////**** Variations on this sine wave code does not count as patrolling - for the
+		////**** assignment the tank must move naturally between two specific points
+		//m_Speed = 10.0f * Sin( m_Timer * 4.0f );
+		//m_Timer += updateTime;
+		//}
+		//else
+		//{
+		//	m_Speed = 0;
+		//}
+
+		//// Perform movement...
+		//// Move along local Z axis scaled by update time
+		//Matrix().MoveLocalZ( m_Speed * updateTime );
+
+	return IsAlive(); // Return the 'alive' pseudostate - true if alive (dont destroy this entity), false if dead (destroy this entity)
+}
+
+// Perform a state transition - make any state entry and exit actions here
+void CTankEntity::MoveToState(EState newState)
+{
+	//TODO: Consider ramifications of moving from a state to the same state - for now going to ignore these changes
+	if (newState == m_State)
 	{
-		m_Speed = 0;
+		return;
 	}
 
-	// Perform movement...
-	// Move along local Z axis scaled by update time
-	Matrix().MoveLocalZ( m_Speed * updateTime );
+	//Perform state exit actions
+	switch (m_State)
+	{
+	case State_Inactive:
+		break;
+	case State_Patrol:
+		break;
+	case State_Aim:
+		break;
+	case State_Evade:
+		break;
+	default:
+		break;
+	}
 
-	return true; // Don't destroy the entity
+	m_State = newState;
+
+	//Perform state entry actions
+	switch (m_State)
+	{
+	case State_Inactive:
+		break;
+	case State_Patrol:
+		break;
+	case State_Aim:
+		m_Timer = 1.0f;	//Set timer to 1 second
+		break;
+	case State_Evade:
+		//TODO: Select Random position within 40 units of current position (create a unit (direction) vector from a random angle, then select a length (0-40)
+		//Move toward this random position
+		break;
+	default:
+		break;
+	}
+}
+
+void CTankEntity::FireShell()
+{
+	//TODO: Complete this function to actually fire a shell
+	m_ShellsFired++;
+}
+
+void CTankEntity::TakeDamage(TInt32 damage)
+{
+	//Extracted this functionality for quick modification in case of potential invincibility/armor in the future
+	m_HP -= damage;
+}
+
+bool CTankEntity::IsAlive()
+{
+	//Check if the tank should consider itself alive or dead - extracted functionality to allow for future invulnerability, alternate death conditions etc
+	return (m_HP > 0);	//Return true if hp is more than 0
 }
 
 

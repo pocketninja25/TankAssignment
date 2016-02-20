@@ -149,6 +149,20 @@ public:
 		return m_Speed;
 	}
 
+	string GetStateString()
+	{
+		return StateStrings[m_State];
+	}
+
+	TInt32 GetHP()
+	{
+		return m_HP;
+	}
+
+	TInt32 GetNoShellsFired()
+	{
+		return m_ShellsFired;
+	}
 
 	/////////////////////////////////////
 	// Update
@@ -166,13 +180,23 @@ private:
 	/////////////////////////////////////
 	// Types
 
-	// States available for a tank - placeholders for shell code
+	// States available for a tank
 	enum EState
 	{
-		Stop,
-		Go,
+		State_Inactive,
+		State_Patrol,
+		State_Aim,
+		State_Evade,
+		State_Size	//State_Size is not a real state, but used as a constant for the number of actual states
 	};
 
+	string StateStrings[State_Size]
+	{
+		"Inactive",
+		"Patrol",
+		"Aim",
+		"Evade"
+	};
 
 	/////////////////////////////////////
 	// Data
@@ -181,13 +205,29 @@ private:
 	CTankTemplate* m_TankTemplate;
 
 	// Tank data
-	TUInt32  m_Team;  // Team number for tank (to know who the enemy is)
-	TFloat32 m_Speed; // Current speed (in facing direction)
-	TInt32   m_HP;    // Current hit points for the tank
+	TUInt32  m_Team;		// Team number for tank (to know who the enemy is)
+	TFloat32 m_Speed;		// Current speed (in facing direction)
+	TInt32   m_HP;			// Current hit points for the tank
+	TInt32	 m_ShellsFired;	// Number of shells this tank has fired
 
 	// Tank state
 	EState   m_State; // Current state
 	TFloat32 m_Timer; // A timer used in the example update function   
+	
+	/////////////////////////////////////
+	// State Modifications - Private
+
+	// Move from one state to another - ensure state required entry/exit functionality is performed
+	void MoveToState(EState newState);
+
+	// Fire a shell
+	void FireShell();
+
+	// Deal 'damage' amount of damage to this tank - extracted functionality to allow for future invulnerability etc
+	void TakeDamage(TInt32 damage);
+
+	// Check if the tank should consider itself alive or dead - extracted functionality to allow for future invulnerability, alternate death conditions etc
+	bool IsAlive();
 };
 
 

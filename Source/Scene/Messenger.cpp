@@ -49,5 +49,4 @@ bool CMessenger::FetchMessage( TEntityUID to, SMessage* msg )
 }
 
 
-
 } // namespace gen

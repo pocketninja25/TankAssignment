@@ -14,15 +14,16 @@ using namespace std;
 
 namespace gen
 {
-
+	
 /////////////////////////////////////
 //	Public types
 
 // Some basic message types
 enum EMessageType
 {
-	Msg_Go,   // Start moving
-	Msg_Stop, // Stop all action
+	Msg_Start,
+	Msg_Hit,
+	Msg_Stop
 };
 
 // A message contains a type and the UID that sent it.
@@ -82,7 +83,6 @@ public:
 	// pointer. Returns false if there are no messages for this UID
 	bool FetchMessage( TEntityUID to, SMessage* msg );
 
-
 /////////////////////////////////////
 //	Private interface
 private:
@@ -94,7 +94,7 @@ private:
 	// Define some types to make usage easier
 	typedef multimap<TEntityUID, SMessage> TMessages;
 	typedef TMessages::iterator TMessageIter;
-    typedef pair<TEntityUID, SMessage> UIDMsgPair; // The type stored by the multimap
+	typedef pair<TEntityUID, SMessage> UIDMsgPair; // The type stored by the multimap
 
 	TMessages m_Messages;
 };

@@ -80,6 +80,11 @@ float SumUpdateTimes = 0.0f;
 int NumUpdateTimes = 0;
 float AverageUpdateTime = -1.0f; // Invalid value at first
 
+// Level of data shown
+int DisplayExtendedInfo = true;
+
+// Selected Tank
+int SelectedTankUID = -1;		//Initialise to an invalid value 
 
 //-----------------------------------------------------------------------------
 // Scene management
@@ -234,7 +239,6 @@ void RenderScene( float updateTime )
 	SwapChain->Present( 0, 0 );
 }
 
-
 // Render a single text string at the given position in the given colour, may optionally centre it
 void RenderText( const string& text, int X, int Y, float r, float g, float b, bool centre = false )
 {
@@ -274,25 +278,72 @@ void RenderSceneText( float updateTime )
 		outText.str("");
 	}
 
+	CVector3 mouseWorldPos = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+	outText << "X: " << mouseWorldPos.x << endl << "Z: " << mouseWorldPos.z;
+	RenderText(outText.str(), 2, 27, 0.0f, 0.0f, 0.0f);
+	RenderText(outText.str(), 0, 25, 1.0f, 1.0f, 0.0f);
+	outText.str("");
+
+
 }
 
+// Render the entity information at its model position
 void RenderEntityText(CEntityManager& EntityManager)
 {
 	string name = "";
 	string templateName = "";
 	EntityManager.BeginEnumEntities(name, templateName, "Tank");
 	CEntity* theEntity = EntityManager.EnumEntity();
+	CTankEntity* theTank = dynamic_cast<CTankEntity*> (theEntity);	//TODO: This is dangerous, be careful with this, probably remove before submission
+
+	CVector3 selectedTankColour = CVector3(1.0f, 1.0f, 1.0f);
+	CVector3 unselectedTankColour = CVector3(1.0f, 1.0f, 0.0f);
+	CVector3 dropShadowColour = CVector3(0.0f, 0.0f, 0.0f);
 
 	while (theEntity)
 	{
+		CVector3 theFontColour;
+		// Select a font colour depending on whether this entity is the selected entity
+		if (theEntity->GetUID() == SelectedTankUID)
+		{
+			theFontColour = selectedTankColour;
+		}
+		else
+		{
+			theFontColour = unselectedTankColour;
+		}
+
 		CVector3 thePosition = theEntity->Position();
-		thePosition.y += 1.5f;
 		TInt32 x, y;
 		if (MainCamera->PixelFromWorldPt(thePosition, ViewportWidth, ViewportHeight, &x, &y))
 		{
-			RenderText(theEntity->GetName(), x, y, 0.0f, 0.0f, 0.0f, true );
-			RenderText(theEntity->GetName(), x - 2, y - 2, 1.0f, 1.0f, 0.0f, true);
+			y += 20;	//Move the y pixel coordinate 20 pixels down so the Name information appears underneath the tank
 
+			//Render the entity's name (with dropped shadow)
+			RenderText(theEntity->GetName(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true );
+			RenderText(theEntity->GetName(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
+			
+			if (DisplayExtendedInfo && theTank) //Dynamic cast was successful - write tank specific info
+			{
+				y += 10;	//Move the y pixel coordinate 10 pixels down so the HP information appears underneath the name info
+				stringstream stringOut;
+				stringOut << "HP: " << theTank->GetHP();
+				RenderText(stringOut.str(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
+				RenderText(stringOut.str(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
+				stringOut.str("");	//Clear the stringstream
+
+				y += 10;	//Move the y pixel coordinate 10 pixels down so the Shells fired information appears underneath the HP info
+				stringOut << "Fired: " << theTank->GetNoShellsFired();
+				RenderText(stringOut.str(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
+				RenderText(stringOut.str(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
+				stringOut.str("");	//Clear the stringstream
+				
+				y += 10;	//Move the y pixel coordinate 10 pixels down so the state information appears underneath the Shells Fired info
+				RenderText(theTank->GetStateString(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
+				RenderText(theTank->GetStateString(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
+
+
+			}
 		}
 
 		theEntity = EntityManager.EnumEntity();
@@ -307,10 +358,103 @@ void UpdateScene( float updateTime )
 	// Call all entity update functions
 	EntityManager.UpdateAllEntities( updateTime );
 
+	if (KeyHit(Key_0))
+	{
+		DisplayExtendedInfo = !DisplayExtendedInfo;
+	}
+	if (KeyHit(Key_1))
+	{
+		//Send a start message to all Tank Entities		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
+		SMessage theMessage;
+		theMessage.from = -1;	//TODO: Check this is correct - not an entity sending the message - this seems to be for interactions of other messages anyway
+		theMessage.type = Msg_Start;
+
+		EntityManager.BeginEnumEntities("", "", "Tank");	
+		CEntity* thisEntity = EntityManager.EnumEntity();
+		while (thisEntity)
+		{
+			Messenger.SendMessageA(thisEntity->GetUID(), theMessage);
+
+			//Enumerate entity for next iteration
+			thisEntity = EntityManager.EnumEntity();
+		}
+		EntityManager.EndEnumEntities();
+	}
+	if (KeyHit(Key_2))
+	{
+		//Send a stop message to all Tank Entities		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
+		SMessage theMessage;
+		theMessage.from = -1;	//TODO: Check this is correct - not an entity sending the message - this seems to be for interactions of other messages anyway
+		theMessage.type = Msg_Stop;
+
+		EntityManager.BeginEnumEntities("", "", "Tank");
+		CEntity* thisEntity = EntityManager.EnumEntity();
+		while (thisEntity)
+		{
+			Messenger.SendMessageA(thisEntity->GetUID(), theMessage);
+
+			//Enumerate entity for next iteration
+			thisEntity = EntityManager.EnumEntity();
+		}
+		EntityManager.EndEnumEntities();
+	}
+
 	// Set camera speeds
 	// Key F1 used for full screen toggle
 	if (KeyHit(Key_F2)) CameraMoveSpeed = 5.0f;
 	if (KeyHit(Key_F3)) CameraMoveSpeed = 40.0f;
+
+	// Select a tank
+	if (KeyHit(Key_G))
+	{
+		CVector3 mouseWorldPos = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+		
+		CEntity* nearestTank = nullptr;
+		TFloat32 distanceToNearestTank;
+
+		EntityManager.BeginEnumEntities("", "", "Tank");
+		CEntity* thisEntity = EntityManager.EnumEntity();
+		while (thisEntity)
+		{
+			if (nearestTank == 0)
+			{
+				//The first tank is initially the nearest
+				nearestTank = thisEntity;
+				distanceToNearestTank = (thisEntity->Position() - mouseWorldPos).Length();
+			}
+			else if ((thisEntity->Position() - mouseWorldPos).Length() < distanceToNearestTank)	//The new tank is nearer than current nearest
+			{
+				nearestTank = thisEntity;
+				distanceToNearestTank = (thisEntity->Position() - mouseWorldPos).Length();
+			}
+
+			//Enumerate entity for next iteration
+			thisEntity = EntityManager.EnumEntity();
+		}
+		EntityManager.EndEnumEntities();
+
+		if (nearestTank)	//There is a chosen tank
+		{
+			//If the distance to the nearest tank is too far deselect all tanks
+			if (distanceToNearestTank > 50.0f)
+			{
+				SelectedTankUID = -1;
+			}
+			else	//Selection is close enough - select the nearest item
+			{
+				SelectedTankUID = nearestTank->GetUID();
+			}
+		}
+	}
+	// Direct a tank
+	if (KeyHit(Mouse_RButton))
+	{
+		if (SelectedTankUID != -1)	//A tank is selected
+		{
+			//TODO: Move to selected location
+		}
+	}
+
 
 	// Move the camera
 	MainCamera->Control( Key_Up, Key_Down, Key_Left, Key_Right, Key_W, Key_S, Key_A, Key_D, 

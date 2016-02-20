@@ -38,11 +38,15 @@ CShellEntity::CShellEntity
 (
 	CEntityTemplate* entityTemplate,
 	TEntityUID       UID,
+	const TFloat32&	 speed,
+	const TInt32&	 lifeTime,
 	const string&    name /*=""*/,
 	const CVector3&  position /*= CVector3::kOrigin*/, 
 	const CVector3&  rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
 	const CVector3&  scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
-) : CEntity( entityTemplate, UID, name, position, rotation, scale )
+) : CEntity( entityTemplate, UID, name, position, rotation, scale ),
+	m_Speed(speed),
+	m_LifeTime(lifeTime)
 {
 	// Initialise any shell data you add
 }
@@ -53,7 +57,23 @@ CShellEntity::CShellEntity
 // Return false if the entity is to be destroyed
 bool CShellEntity::Update( TFloat32 updateTime )
 {
+	m_LifeTime -= updateTime;
+	if (!IsAlive())
+	{
+		return false;
+	}
+
+	// Move along local Z axis scaled by update time
+	Matrix().MoveLocalZ( m_Speed * updateTime );
+
+	//TODO: Collision detection
+
 	return true; // Placeholder
+}
+
+bool CShellEntity::IsAlive()
+{
+	return (m_LifeTime > 0);
 }
 
 
