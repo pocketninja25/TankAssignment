@@ -56,7 +56,8 @@ public:
 	CTankTemplate* CEntityManager::CreateTankTemplate( const string& type, const string& name,
 	                                                   const string& mesh, float maxSpeed,
 	                                                   float acceleration, float turnSpeed,
-	                                                   float turretTurnSpeed, int maxHP, int shellDamage );
+	                                                   float turretTurnSpeed, int maxHP, 
+													   int shellDamage, float radius );
 
 
 	// Destroy the given template (name) - returns true if the template existed and was destroyed

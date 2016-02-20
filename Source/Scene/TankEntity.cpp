@@ -30,6 +30,7 @@
 #include "TankEntity.h"
 #include "EntityManager.h"
 #include "Messenger.h"
+#include "CVector4.h"
 
 namespace gen
 {
@@ -78,14 +79,29 @@ CTankEntity::CTankEntity
 	m_ShellsFired = 0;
 	m_State = State_Inactive;
 	m_Timer = 0.0f;
-}
 
+	//Create a patrol point 10 units in front and 10 units behind starting position
+	CVector3 waypoint = position;
+	CVector3 facingVector = CVector3(Matrix().GetRow(2));	//Get Facing vector of tank
+	waypoint.x += (facingVector.x * 40.0f);
+	waypoint.y += (facingVector.y * 40.0f);
+	waypoint.z += (facingVector.z * 40.0f);
+	m_PatrolWaypoints.push_back(waypoint);
+	
+	waypoint.x -= (facingVector.x * 80.0f);
+	waypoint.y -= (facingVector.y * 80.0f);
+	waypoint.z -= (facingVector.z * 80.0f);
+	m_PatrolWaypoints.push_back(waypoint);
+	m_CurrentWaypoint = m_PatrolWaypoints.begin();
+
+}
 
 // Update the tank - controls its behaviour. The shell code just performs some test behaviour, it
 // is to be rewritten as one of the assignment requirements
 // Return false if the entity is to be destroyed
 bool CTankEntity::Update( TFloat32 updateTime )
 {
+	///////////////////////
 	// Fetch any messages
 	SMessage msg;
 	while (Messenger.FetchMessage( GetUID(), &msg ))
@@ -93,7 +109,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		// Set state variables based on received messages
 		if (m_State == State_Inactive)
 		{
-			//React to message only in the inactive state
+			//React to start message only in the inactive state
 			switch (msg.type)
 			{
 				case Msg_Start:
@@ -119,49 +135,159 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		return false;
 	}
 
+	/////////////////////////
+	// Set Movement Flags
+	bool AccelerateFlag = false;
+	bool DecelerateFlag = false;
+	bool TurnLeftFlag = false;
+	bool TurnRightFlag = false;
 
-	// Tank behaviour
+	bool RotateTurretLeftFlag = false;
+	bool RotateTurretRightFlag = false;
+
+	////////////////////////////////
+	// Tank behaviour - State based
 	switch (m_State)
 	{
 	case State_Inactive:
+	{
+		// State Description
 		//Remain Stationary
+	}
 		break;
 	case State_Patrol:
-		//TODO: The tank patrols back and forth between two points, facing its direction of movement
+	{
+		// State Description
+		//The tank patrols back and forth between two points, facing its direction of movement
 		//Turret should rotate slowly
 		//When turret points within 15° of an enemy (either side) - go to aim state
+		
+		
+		// Test if within radius distance of the waypoint (Reached the waypoint)
+		if (Length(Position() - *m_CurrentWaypoint) < m_TankTemplate->GetRadius())
+		{
+			// Move to next waypoint
+			m_CurrentWaypoint++;
+			//If the next waypoint iterator is the end of the list then set it to the start instead
+			if (m_CurrentWaypoint == m_PatrolWaypoints.end())
+			{
+				m_CurrentWaypoint = m_PatrolWaypoints.begin();
+			}
+		}
+
+		// Determine whether to turn (and in which direction)
+		CVector3 rightVector = CVector3(Matrix().GetRow(0));	//Extract right vector from tank
+		CVector3 vectorToWaypoint = Normalise(*m_CurrentWaypoint - Position()); //Make a unit vector for dot product
+
+		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right
+		// cos(0°) = 1, cos(90°) = 0, cos(180°) = - 1 
+		float dotProd = Dot(rightVector, vectorToWaypoint);
+		if (dotProd > 0)	//< 90° // Turn right (positive)
+		{
+			TurnRightFlag = true;
+		}
+		else 	//> 90° //Turn left (negative)	//This also deals with facing the directly wrong direction
+		{
+			TurnLeftFlag = true;
+		}
+
+		// Determine whether to Apply acceleration
+		float stoppingDistance = (pow(m_Speed, 2)) / 
+			(2 * m_TankTemplate->GetAcceleration()) - 
+			(m_Speed / 2);								//Stopping distance = speed^2 / 2 * maxdeceleration - speed / 2
+
+		// If stopping distance is less than the distance to the target, accelerate, otherwise decelerate
+		if (stoppingDistance < Length(*m_CurrentWaypoint - Position()))
+		{
+			AccelerateFlag = true;
+		}
+		else
+		{
+			DecelerateFlag = true;			
+		}
+
+
+		// Rotate the turret
+		RotateTurretRightFlag = true;
+
+		if (TurretFacingEnemy(5.0f))
+		{
+			MoveToState(State_Aim);
+		}
+
+	}
 		break;
 	case State_Aim:
+	{
 		//TODO: Stop moving and count down a timer (initialised to 1 second)
 		//Turret rotates quicker to try point at enemy exactly
 		//When timer = 0, create a shell (fire turret) - go to evade state
 		//TODO: Use FireShell function to fire a shell
+	}
 		break;
 	case State_Evade:
+	{
 		//TODO: Move toward (already selected in state transition function) position
 		// Rotate turret (quickly) to the tank's forward direction
 		// When tank reaches point (probably do point to sphere collision) - go to patrol state
+	}
 		break;
 	default:
 		break;
 	}
+
+	//////////////////////////////////
+	// Perform Tank Body Movement...
+
+	//Perform movement of the tank body (Mesh[0]) based on flags
+
+	//Determine acceleration/deceleration for this timestep (Dont not act if both flags are set (allows for alternate deceleration speed later on))
+	if (AccelerateFlag)
+	{
+		m_Speed += m_TankTemplate->GetAcceleration() * updateTime;
+	}
+	if (DecelerateFlag)
+	{
+		m_Speed -= m_TankTemplate->GetAcceleration() * updateTime;
+	}
 	
-		// Only move if in Go state
-		//// Cycle speed up and down using a sine wave - just demonstration behaviour
-		////**** Variations on this sine wave code does not count as patrolling - for the
-		////**** assignment the tank must move naturally between two specific points
-		//m_Speed = 10.0f * Sin( m_Timer * 4.0f );
-		//m_Timer += updateTime;
-		//}
-		//else
-		//{
-		//	m_Speed = 0;
-		//}
+	//Determine turning for this timestep
+	if (TurnRightFlag)
+	{
+		Matrix().RotateLocalY(m_TankTemplate->GetTurnSpeed() * updateTime);
+	}
+	if (TurnLeftFlag)
+	{
+		Matrix().RotateLocalY(-m_TankTemplate->GetTurnSpeed() * updateTime);
+	}
+	
+	//Limit the speed if it has gone too high this timestep
+	if (m_Speed > m_TankTemplate->GetMaxSpeed())
+	{
+		m_Speed = m_TankTemplate->GetMaxSpeed();
+	}
+	//Limit the speed if it would cause reversing this timestep
+	if (m_Speed < 0.0f)
+	{
+		m_Speed = 0.0f;
+	}
 
-		//// Perform movement...
-		//// Move along local Z axis scaled by update time
-		//Matrix().MoveLocalZ( m_Speed * updateTime );
+	// Move along local Z axis scaled by update time
+	Matrix().MoveLocalZ(m_Speed * updateTime);
+	//TODO: Reconsider having the motion local to the body, or if the root is okay
+	
 
+	/////////////////////////////
+	// Perform Turret Movement
+	if (RotateTurretRightFlag)
+	{
+		Matrix(2).RotateLocalY(m_TankTemplate->GetTurretTurnSpeed() * updateTime);
+	}
+	if (RotateTurretLeftFlag)
+	{
+		Matrix(2).RotateLocalY(-m_TankTemplate->GetTurretTurnSpeed() * updateTime);
+	}
+		
 	return IsAlive(); // Return the 'alive' pseudostate - true if alive (dont destroy this entity), false if dead (destroy this entity)
 }
 
@@ -174,8 +300,9 @@ void CTankEntity::MoveToState(EState newState)
 		return;
 	}
 
-	//Perform state exit actions
-	switch (m_State)
+	//////////////////////////////
+	// Perform state exit actions
+	switch (m_State) 
 	{
 	case State_Inactive:
 		break;
@@ -189,26 +316,48 @@ void CTankEntity::MoveToState(EState newState)
 		break;
 	}
 
+	// Modify the state variable to the new state
 	m_State = newState;
 
-	//Perform state entry actions
+	//////////////////////////////
+	// Perform state entry actions
 	switch (m_State)
 	{
 	case State_Inactive:
+	{
+		//Stop the tanks movement
+		m_Speed = 0;
+	}
 		break;
 	case State_Patrol:
+	{
+		//Select nearest patrol point
+		m_CurrentWaypoint = m_PatrolWaypoints.begin();
+		for (vector<CVector3>::iterator waypoint = m_PatrolWaypoints.begin(); waypoint != m_PatrolWaypoints.end(); waypoint++)
+		{
+			if (Length(Position() - *waypoint) < Length(Position() - *m_CurrentWaypoint))
+			{
+				m_CurrentWaypoint = waypoint;
+			}
+		}
+	}
 		break;
 	case State_Aim:
+	{
 		m_Timer = 1.0f;	//Set timer to 1 second
+	}
 		break;
 	case State_Evade:
+	{
 		//TODO: Select Random position within 40 units of current position (create a unit (direction) vector from a random angle, then select a length (0-40)
 		//Move toward this random position
+	}
 		break;
 	default:
 		break;
 	}
 }
+
 
 void CTankEntity::FireShell()
 {
@@ -228,5 +377,34 @@ bool CTankEntity::IsAlive()
 	return (m_HP > 0);	//Return true if hp is more than 0
 }
 
+bool CTankEntity::TurretFacingEnemy(TFloat32 angle)
+{
+	EntityManager.BeginEnumEntities("", "", "Tank");
+	CTankEntity* theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity());
+	while (theOtherTank)
+	{
+		// Check if the other tank
+		if (theOtherTank->m_Team != this->m_Team)
+		{
+			// This is an enemy tank, determine if the turret points within "angle"° of it
+
+			CVector3 unitVecToOther = Normalise(Position(2) - theOtherTank->Position());
+			CVector3 turretFacing = CVector3((Matrix(0) * Matrix(2)).GetRow(2));
+
+			if (acosf(Dot(unitVecToOther, turretFacing)) < ToRadians(angle))
+			{
+				//ALso needs TO Be iN FrONt???
+				if(Dot)
+				return true;
+			}
+
+		}
+
+		theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity());
+	}
+	EntityManager.EndEnumEntities();
+
+	return false;
+}
 
 } // namespace gen

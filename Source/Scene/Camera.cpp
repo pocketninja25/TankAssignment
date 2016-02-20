@@ -126,7 +126,7 @@ bool CCamera::PixelFromWorldPt( CVector3 worldPt, TUInt32 ViewportWidth, TUInt32
 	q.y /= q.w;
 
 	*X = static_cast<TInt32>((q.x + 1) * (ViewportWidth  / 2));
-	*Y = static_cast<TInt32>((1 - q.y) * (ViewportHeight / 2));
+	*Y = static_cast<TInt32>((1 - q.y) * (ViewportHeight / 2));	//The screen axis is up - down (inverse of world Y) so need to inverse
 	return true;
 }
 
@@ -135,8 +135,50 @@ bool CCamera::PixelFromWorldPt( CVector3 worldPt, TUInt32 ViewportWidth, TUInt32
 CVector3 CCamera::WorldPtFromPixel( TInt32 X, TInt32 Y, 
 									TUInt32 ViewportWidth, TUInt32 ViewportHeight )
 {	
-	CVector4 q;
-	CVector2 pixelPt;
+	//CVector4 q;
+	//CVector2 pixelPt;
+	//pixelPt.x = static_cast<float>(X);
+	//pixelPt.y = static_cast<float>(Y);
+	//
+	////Convert to a -1 to 1 coord system from pixel position
+	//q.x = pixelPt.x / (ViewportWidth / 2) - 1;
+	//q.y = 1 - pixelPt.y / (ViewportHeight / 2);
+	//
+	//q.w = m_NearClip;	//Near clip distance
+	//q.z = 0;			//Closest depth buffer value
+	//
+	//					//Undo perspective
+	//q.x *= q.w;
+	//q.y *= q.w;
+	//q.z *= q.w;
+	//
+	//CMatrix4x4 worldMatrix = m_Matrix;
+	//
+	//CMatrix4x4 viewMatrix = m_MatView;
+	//
+	//CMatrix4x4 projectionMatrix = m_MatProj;
+	//
+	////Multiply by inverse viewprojmatrix to convert from camera space to world space
+	//CMatrix4x4 viewProj = m_MatViewProj;
+	//viewProj.Invert();
+	//
+	//viewProj.Transform(q);
+	//
+	////Create floor plane at origin
+	//D3DXPLANE floor;
+	//D3DXPlaneFromPointNormal(&floor, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));	//Create plane at floor (0,0,0) pointing up (0,1,0)
+	//
+	////Calculate the position on the plane that the ray was cast to
+	//D3DXVECTOR3 rayPos;
+	//D3DXPlaneIntersectLine(&rayPos, &floor, &D3DXVECTOR3(q.x, q.y, q.z), &D3DXVECTOR3(this->Position().x, this->Position().y, this->Position().z));	//Cast a line from the camera vector to the point on the near clip
+	//
+	//
+	//return gen::CVector3(rayPos.x, rayPos.y, rayPos.z); //Returns the position on the plane that the ray was cast to
+	//
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	D3DXVECTOR4 q;
+	D3DXVECTOR2 pixelPt;
 	pixelPt.x = static_cast<float>(X);
 	pixelPt.y = static_cast<float>(Y);
 
@@ -144,36 +186,33 @@ CVector3 CCamera::WorldPtFromPixel( TInt32 X, TInt32 Y,
 	q.x = pixelPt.x / (ViewportWidth / 2) - 1;
 	q.y = 1 - pixelPt.y / (ViewportHeight / 2);
 
-	q.w = m_NearClip;	//Near clip distance
 	q.z = 0;			//Closest depth buffer value
+	q.w = m_NearClip;	//Near clip distance
 
-						//Undo perspective
+	//Undo perspective
 	q.x *= q.w;
 	q.y *= q.w;
 	q.z *= q.w;
 
-	CMatrix4x4 worldMatrix = m_Matrix;
-
-	CMatrix4x4 viewMatrix = m_MatView;
-	
-	CMatrix4x4 projectionMatrix = m_MatProj;
-
 	//Multiply by inverse viewprojmatrix to convert from camera space to world space
-	CMatrix4x4 viewProj = m_MatViewProj;
-	viewProj.Invert();
-	
-	viewProj.Transform(q);
+	CMatrix4x4 inverseViewProj = m_MatViewProj;
+	inverseViewProj.Invert();
+	CVector4 transformedQ = inverseViewProj.Transform(CVector4(q.x, q.y, q.z, q.w));
+	q.x = transformedQ.x;
+	q.y = transformedQ.y;
+	q.z = transformedQ.z;
+	q.w = transformedQ.w;
 
 	//Create floor plane at origin
 	D3DXPLANE floor;
-	D3DXPlaneFromPointNormal(&floor, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));	//Create plane at floor (0,0,0) pointing up (0,1,0)
+	D3DXPlaneFromPointNormal(&floor, &D3DXVECTOR3(0.0f, 0.0f, 0.0f), &D3DXVECTOR3(0.0f, 1.0f, 0.0f));
 
 	//Calculate the position on the plane that the ray was cast to
 	D3DXVECTOR3 rayPos;
-	D3DXPlaneIntersectLine(&rayPos, &floor, &D3DXVECTOR3(q.x, q.y, q.z), &D3DXVECTOR3(this->Position().x, this->Position().y, this->Position().z));	//Cast a line from the camera vector to the point on the near clip
+	D3DXPlaneIntersectLine(&rayPos, &floor, &D3DXVECTOR3(q), &D3DXVECTOR3(Position().x, Position().y, Position().z));
 
 
-	return gen::CVector3(rayPos.x, rayPos.y, rayPos.z); //Returns the position on the plane that the ray was cast to
+	return CVector3(rayPos.x, rayPos.y, rayPos.z); //Returns the position on the plane that the ray was cast to
 }
 
 

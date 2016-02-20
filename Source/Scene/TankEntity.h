@@ -35,7 +35,7 @@ public:
 	(
 		const string& type, const string& name, const string& meshFilename,
 		TFloat32 maxSpeed, TFloat32 acceleration, TFloat32 turnSpeed,
-		TFloat32 turretTurnSpeed, TUInt32 maxHP, TUInt32 shellDamage
+		TFloat32 turretTurnSpeed, TUInt32 maxHP, TUInt32 shellDamage, TFloat32 radius
 	) : CEntityTemplate( type, name, meshFilename )
 	{
 		// Set tank template values
@@ -45,6 +45,8 @@ public:
 		m_TurretTurnSpeed = turretTurnSpeed;
 		m_MaxHP = maxHP;
 		m_ShellDamage = shellDamage;
+
+		m_Radius = radius;
 	}
 
 	// No destructor needed (base class one will do)
@@ -87,6 +89,11 @@ public:
 		return m_ShellDamage;
 	}
 
+	TFloat32 GetRadius()
+	{
+		return m_Radius;
+	}
+
 
 /////////////////////////////////////
 //	Private interface
@@ -100,6 +107,8 @@ private:
 
 	TUInt32  m_MaxHP;           // Maximum (initial) HP for this kind of tank
 	TUInt32  m_ShellDamage;     // HP damage caused by shells from this kind of tank
+
+	TFloat32 m_Radius;			// Radius of the tank
 };
 
 
@@ -214,6 +223,10 @@ private:
 	EState   m_State; // Current state
 	TFloat32 m_Timer; // A timer used in the example update function   
 	
+	// Patrol state data
+	vector<CVector3> m_PatrolWaypoints;
+	vector<CVector3>::iterator m_CurrentWaypoint;
+
 	/////////////////////////////////////
 	// State Modifications - Private
 
@@ -228,6 +241,9 @@ private:
 
 	// Check if the tank should consider itself alive or dead - extracted functionality to allow for future invulnerability, alternate death conditions etc
 	bool IsAlive();
+
+	// Check if the tturret is facing the enemy within the selected angle (degrees)
+	bool TurretFacingEnemy(TFloat32 angle);
 };
 
 

@@ -129,14 +129,13 @@ bool SceneSetup()
 	// Template type, template name, mesh name, top speed, acceleration, tank turn speed, turret
 	// turn speed, max HP and shell damage. These latter settings are for advanced requirements only
 	EntityManager.CreateTankTemplate("Tank", "Rogue Scout", "HoverTank02.x",
-		24.0f, 2.2f, 2.0f, kfPi / 3, 100, 20);
+		24.0f, 2.2f, 2.0f, kfPi / 3, 100, 20, 6.0f);
 	EntityManager.CreateTankTemplate("Tank", "Oberon MkII", "HoverTank07.x",
-		18.0f, 1.6f, 1.3f, kfPi / 4, 120, 35);
+		18.0f, 1.6f, 1.3f, kfPi / 4, 120, 35, 6.0f);
 
 	// Template for tank shell
 	EntityManager.CreateTemplate("Projectile", "Shell Type 1", "Bullet.x");
-
-
+	
 	////////////////////////////////
 	// Create tank entities
 
@@ -280,6 +279,7 @@ void RenderSceneText( float updateTime )
 
 	CVector3 mouseWorldPos = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
 	outText << "X: " << mouseWorldPos.x << endl << "Z: " << mouseWorldPos.z;
+	//outText << "X: " << MouseX << endl << "Z: " << MouseY;	
 	RenderText(outText.str(), 2, 27, 0.0f, 0.0f, 0.0f);
 	RenderText(outText.str(), 0, 25, 1.0f, 1.0f, 0.0f);
 	outText.str("");
@@ -342,11 +342,23 @@ void RenderEntityText(CEntityManager& EntityManager)
 				RenderText(theTank->GetStateString(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
 				RenderText(theTank->GetStateString(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
 
-
+				//Additional Details - Not needed for the assignment //TODO: Remove these
+				//y += 10;
+				//stringOut << "Speed: " << theTank->GetSpeed();
+				//RenderText(stringOut.str(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
+				//RenderText(stringOut.str(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
+				//stringOut.str("");
+				//
+				//y += 10;
+				//stringOut << "X: " << theTank->Position().x << endl << "Y: " << theTank->Position().y << endl << "Z: " << theTank->Position().z;
+				//RenderText(stringOut.str(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
+				//RenderText(stringOut.str(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
+				//stringOut.str("");
 			}
 		}
 
 		theEntity = EntityManager.EnumEntity();
+		theTank = dynamic_cast<CTankEntity*> (theEntity);	//TODO: This is dangerous, be careful with this, probably remove before submission
 	}
 
 	EntityManager.EndEnumEntities();
@@ -436,7 +448,7 @@ void UpdateScene( float updateTime )
 		if (nearestTank)	//There is a chosen tank
 		{
 			//If the distance to the nearest tank is too far deselect all tanks
-			if (distanceToNearestTank > 50.0f)
+			if (distanceToNearestTank > 9.0f)
 			{
 				SelectedTankUID = -1;
 			}

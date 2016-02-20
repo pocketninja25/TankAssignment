@@ -55,11 +55,11 @@ CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const strin
 CTankTemplate* CEntityManager::CreateTankTemplate(const string& type, const string& name,
 	const string& mesh, float maxSpeed,
 	float acceleration, float turnSpeed,
-	float turretTurnSpeed, int maxHP, int shellDamage)
+	float turretTurnSpeed, int maxHP, int shellDamage, float radius)
 {
 	// Create new tank template
 	CTankTemplate* newTemplate = new CTankTemplate(type, name, mesh, maxSpeed, acceleration,
-		turnSpeed, turretTurnSpeed, maxHP, shellDamage);
+		turnSpeed, turretTurnSpeed, maxHP, shellDamage, radius);
 
 	// Add the template name / template pointer pair to the map
 	m_Templates[name] = newTemplate;
