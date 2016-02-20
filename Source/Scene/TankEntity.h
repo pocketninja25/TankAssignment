@@ -187,6 +187,11 @@ public:
 		return m_ShellsFired;
 	}
 
+	TFloat32 GetRadius()
+	{
+		return m_TankTemplate->GetRadius();
+	}
+
 	/////////////////////////////////////
 	// Update
 
@@ -237,6 +242,9 @@ private:
 
 	// Aim state data
 	TEntityUID m_Target;
+
+	// Evade state data
+	CVector3 m_EvasionTarget;
 
 	/////////////////////////////////////
 	// State Modifications - Private

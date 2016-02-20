@@ -42,8 +42,9 @@ public:
 	(
 		CEntityTemplate* entityTemplate,
 		TEntityUID       UID,
+		TEntityUID		 FiredBy,
 		const TFloat32&	 speed,
-		const TInt32&	 lifeTime,
+		const TFloat32&	 lifeTime,
 		const string&    name = "",
 		const CVector3&  position = CVector3::kOrigin, 
 		const CVector3&  rotation = CVector3( 0.0f, 0.0f, 0.0f ),
@@ -73,11 +74,12 @@ private:
 	/////////////////////////////////////
 	// State Checks
 
-	bool IsAlive();
+	bool IsAlive();	
 
 	/////////////////////////////////////
 	// Data
 
+	TEntityUID m_FiredBy;	//The the entity that fired this shell, prevents shooting self (during first frames)
 	TFloat32 m_LifeTime;	//How long the shell will live (assuming it doesnt die for some other reason)
 	TFloat32 m_Speed;		// Current speed (in facing direction)
 };

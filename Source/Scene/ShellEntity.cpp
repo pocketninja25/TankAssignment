@@ -38,8 +38,9 @@ CShellEntity::CShellEntity
 (
 	CEntityTemplate* entityTemplate,
 	TEntityUID       UID,
+	TEntityUID		 firedBy,
 	const TFloat32&	 speed,
-	const TInt32&	 lifeTime,
+	const TFloat32&	 lifeTime,
 	const string&    name /*=""*/,
 	const CVector3&  position /*= CVector3::kOrigin*/, 
 	const CVector3&  rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
@@ -48,11 +49,12 @@ CShellEntity::CShellEntity
 {
 	m_Speed = speed;
 	m_LifeTime = lifeTime;
+	m_FiredBy = firedBy;
 }
 
 
 // Update the shell - controls its behaviour. The shell code is empty, it needs to be written as
-// one of the assignment requirements
+
 // Return false if the entity is to be destroyed
 bool CShellEntity::Update( TFloat32 updateTime )
 {
@@ -67,9 +69,30 @@ bool CShellEntity::Update( TFloat32 updateTime )
 	Matrix().MoveLocalZ( m_Speed * updateTime );
 
 	//TODO: Collision detection
-	//EntityManager.BeginEnumEntities("", "", "Tank");
-	//CTankEntity* tanks = 
+	EntityManager.BeginEnumEntities("", "", "Tank");
+	CTankEntity* theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity());
+	while (theTank)
+	{
+		if(theTank->GetUID() != m_FiredBy)
+		{
 
+			if (Length(Position() - theTank->Position()) < theTank->GetRadius())	//If distance between the shell and the tank is less than the tank's radius
+			{
+				EntityManager.EndEnumEntities();
+				// Hit the tank, send the hit message and destroy the bullet
+				SMessage theHitMessage;
+				theHitMessage.from = GetUID();
+				theHitMessage.type = Msg_Hit;
+
+				Messenger.SendMessageA(theTank->GetUID(), theHitMessage);
+				return false;
+			}
+
+		}
+		theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity());
+	}
+	
+	EntityManager.EndEnumEntities();
 
 	return true; // Placeholder
 }

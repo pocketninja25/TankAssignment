@@ -97,13 +97,14 @@ public:
 	// Returns the UID of the new entity
 	TEntityUID CreateShell
 	(
-		const string&   templateName,
-		const TFloat32&	speed,
-		const TFloat32&	lifeTime,
-		const string&   name = "",
-		const CVector3& position = CVector3::kOrigin,
-		const CVector3& rotation = CVector3(0.0f, 0.0f, 0.0f),
-		const CVector3& scale = CVector3(1.0f, 1.0f, 1.0f)
+		const string&		templateName,
+		const TEntityUID&	firedBy,
+		const TFloat32&		speed,
+		const TFloat32&		lifeTime,
+		const string&		name = "",
+		const CVector3&		position = CVector3::kOrigin,
+		const CVector3&		rotation = CVector3(0.0f, 0.0f, 0.0f),
+		const CVector3&		scale = CVector3(1.0f, 1.0f, 1.0f)
 	);
 
 

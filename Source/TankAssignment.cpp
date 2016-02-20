@@ -455,6 +455,10 @@ void UpdateScene( float updateTime )
 			else	//Selection is close enough - select the nearest item
 			{
 				SelectedTankUID = nearestTank->GetUID();
+				SMessage theMessage;
+				theMessage.from = -1;
+				theMessage.type = Msg_Evade;
+				Messenger.SendMessageA(SelectedTankUID, theMessage);
 			}
 		}
 	}

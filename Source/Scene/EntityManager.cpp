@@ -171,20 +171,21 @@ TEntityUID CEntityManager::CreateTank
 // Returns the UID of the new entity
 TEntityUID CEntityManager::CreateShell
 (
-	const string&   templateName,
-	const TFloat32&	speed,
-	const TFloat32&	lifeTime,
-	const string&   name /*= ""*/,
-	const CVector3& position /*= CVector3::kOrigin*/,
-	const CVector3& rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
-	const CVector3& scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
+	const string&		templateName,
+	const TEntityUID&	firedBy,
+	const TFloat32&		speed,
+	const TFloat32&		lifeTime,
+	const string&		name /*= ""*/,
+	const CVector3&		position /*= CVector3::kOrigin*/,
+	const CVector3&		rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
+	const CVector3&		scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
 	)
 {
 	// Get template associated with the template name
 	CEntityTemplate* entityTemplate = GetTemplate(templateName);
 
 	// Create new entity with next UID
-	CEntity* newEntity = new CShellEntity(entityTemplate, m_NextUID,
+	CEntity* newEntity = new CShellEntity(entityTemplate, m_NextUID, firedBy, 
 		speed, lifeTime, name, position, rotation, scale);
 
 	// Get vector index for new entity and add it to vector

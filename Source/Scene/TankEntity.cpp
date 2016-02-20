@@ -100,6 +100,8 @@ CTankEntity::CTankEntity
 	m_PatrolWaypoints.push_back(waypoint);
 	m_CurrentWaypoint = m_PatrolWaypoints.begin();
 
+	m_Target = -1;
+	m_EvasionTarget = CVector3(0.0f, 0.0f, 0.0f);	
 }
 
 // Update the tank - controls its behaviour. The shell code just performs some test behaviour, it
@@ -128,10 +130,12 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		{
 		case Msg_Hit:
 			TakeDamage(20);
-			MoveToState(State_Evade);
 			break;
 		case Msg_Stop:
 			MoveToState(State_Inactive);
+			break;
+		case Msg_Evade:
+			MoveToState(State_Evade);
 			break;
 		}
 	}
@@ -188,7 +192,6 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		CVector3 vectorToWaypoint = Normalise(*m_CurrentWaypoint - Position()); //Make a unit vector for dot product
 
 		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right
-		// cos(0°) = 1, cos(90°) = 0, cos(180°) = - 1 
 		if (Dot(rightVector, vectorToWaypoint) > 0)	//< 90° // Turn right (positive)
 		{
 			TurnRightFlag = true;
@@ -244,8 +247,6 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		CVector3 vecToTarget = Normalise(targetTank->Position() - Matrix().TransformPoint(Position(2))); //Get vector from turret to target
 		
 		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right		
-		// cos(0°) = 1, cos(90°) = 0, cos(180°) = - 1 
-		
 		if (Dot(rightVector, vecToTarget) > 0)	//< 90° // Turn right (positive)
 		{
 			RotateTurretRightFlag = true;
@@ -268,9 +269,71 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		break;
 	case State_Evade:
 	{
-		//TODO: Move toward (already selected in state transition function) position
-		// Rotate turret (quickly) to the tank's forward direction
-		// When tank reaches point (probably do point to sphere collision) - go to patrol state
+		// State Description
+		//Move toward (already selected in state transition function) position
+		//Rotate turret (quickly) to the tank's forward direction
+		//When tank reaches point (probably do point to sphere collision) - go to patrol state
+
+		///////////////////
+		// Tank control
+
+		// Determine whether to turn (and in which direction)
+		CVector3 rightVector = CVector3(Matrix().GetRow(0));	//Extract right vector from tank
+		CVector3 vectorToTarget = Normalise(m_EvasionTarget - Position()); //Make a unit vector for dot product
+
+		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right
+		if (Dot(rightVector, vectorToTarget) > 0)	//< 90° // Turn right (positive)
+		{
+			TurnRightFlag = true;
+		}
+		else 	//> 90° //Turn left (negative)	//This also deals with facing the directly wrong direction
+		{
+			TurnLeftFlag = true;
+		}
+		
+		// Determine whether to Apply acceleration
+		float stoppingDistance = (pow(m_Speed, 2)) /
+			(2 * m_TankTemplate->GetAcceleration()) -
+			(m_Speed / 2);								//Stopping distance = speed^2 / 2 * maxdeceleration - speed / 2
+
+														// If stopping distance is less than the distance to the target, accelerate, otherwise decelerate
+		if (stoppingDistance < Length(*m_CurrentWaypoint - Position()))
+		{
+			AccelerateFlag = true;
+		}
+		else
+		{
+			DecelerateFlag = true;
+		}
+
+		////////////////////////
+		// Turret control
+
+		// Determine whether to turn turret (and in which direction)
+		rightVector = CVector3(Matrix(2).GetRow(0));	//Extract (local) right vector from turret
+		CVector3 forwardVector = CVector3(Matrix().GetRow(2));	//Extract target vector (forward) from root
+
+		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right
+		if (Dot(rightVector, forwardVector) > 0)	//< 90° // Turn right (positive)
+		{
+			RotateTurretRightFlag = true;
+		}
+		else 	//> 90° //Turn left (negative)	//This also deals with facing the directly wrong direction
+		{
+			RotateTurretLeftFlag = true;
+		}
+
+		
+
+		//////////////////////////////
+		// State Exit condition check
+
+		//If reached evasion target
+		if (Length(Position() - m_EvasionTarget) < m_TankTemplate->GetRadius())
+		{
+			//Go to patrol state
+			MoveToState(State_Patrol);
+		}
 	}
 		break;
 	default:
@@ -390,8 +453,20 @@ void CTankEntity::MoveToState(EState newState)
 		break;
 	case State_Evade:
 	{
-		//TODO: Select Random position within 40 units of current position (create a unit (direction) vector from a random angle, then select a length (0-40)
-		//Move toward this random position
+		//Select Random position within 40 units of current position 
+		
+		float angle = Random(0.0f, 2* kfPi);	//Select angle to rotate z direction vector by
+		float distance = Random(0.0f, 40.0f);	//Select a distance from 0 to 40 to scale the direction vector by
+		
+		CMatrix4x4 rotationMatrix;
+		rotationMatrix.MakeRotationY(angle);
+		CVector3 direction = CVector3(0.0f, 0.0f, distance);	//Make vector pointing in z of length 'distance'
+
+		rotationMatrix.TransformVector(direction);	//Rotate the vector to point at the random angle
+
+		m_EvasionTarget = direction + Position();	//Add the tanks Position to the calculated direction to get the randomised evasion position
+
+		//Move toward this random position (in update)
 	}
 		break;
 	default:
@@ -408,7 +483,7 @@ void CTankEntity::FireShell()
 
 	position = Matrix().TransformPoint(Position(2));
 
-	EntityManager.CreateShell("Shell Type 1", m_TankTemplate->GetShellSpeed(), m_TankTemplate->GetShellLifeTime(),
+	EntityManager.CreateShell("Shell Type 1", GetUID(), m_TankTemplate->GetShellSpeed(), m_TankTemplate->GetShellLifeTime(),
 		nameStream.str(), position, rotation, scale);
 
 	m_ShellsFired++;
@@ -444,6 +519,7 @@ bool CTankEntity::TurretFacingEnemy(TFloat32 angle, TEntityUID& entityFacing)
 			if (Dot(unitVecToOther, turretFacing) > cosAngle)
 			{		
 				entityFacing = theOtherTank->GetUID();
+				EntityManager.EndEnumEntities();
 				return true;
 			}
 
