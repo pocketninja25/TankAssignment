@@ -44,11 +44,10 @@ CShellEntity::CShellEntity
 	const CVector3&  position /*= CVector3::kOrigin*/, 
 	const CVector3&  rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
 	const CVector3&  scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
-) : CEntity( entityTemplate, UID, name, position, rotation, scale ),
-	m_Speed(speed),
-	m_LifeTime(lifeTime)
+) : CEntity( entityTemplate, UID, name, position, rotation, scale )
 {
-	// Initialise any shell data you add
+	m_Speed = speed;
+	m_LifeTime = lifeTime;
 }
 
 
@@ -58,6 +57,7 @@ CShellEntity::CShellEntity
 bool CShellEntity::Update( TFloat32 updateTime )
 {
 	m_LifeTime -= updateTime;
+
 	if (!IsAlive())
 	{
 		return false;
@@ -67,9 +67,14 @@ bool CShellEntity::Update( TFloat32 updateTime )
 	Matrix().MoveLocalZ( m_Speed * updateTime );
 
 	//TODO: Collision detection
+	//EntityManager.BeginEnumEntities("", "", "Tank");
+	//CTankEntity* tanks = 
+
 
 	return true; // Placeholder
 }
+
+
 
 bool CShellEntity::IsAlive()
 {

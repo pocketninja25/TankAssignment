@@ -35,7 +35,8 @@ public:
 	(
 		const string& type, const string& name, const string& meshFilename,
 		TFloat32 maxSpeed, TFloat32 acceleration, TFloat32 turnSpeed,
-		TFloat32 turretTurnSpeed, TUInt32 maxHP, TUInt32 shellDamage, TFloat32 radius
+		TFloat32 turretTurnSpeed, TUInt32 maxHP, 
+		TUInt32 shellDamage, TFloat32 shellSpeed, TFloat32 shellLifeTime, TFloat32 radius
 	) : CEntityTemplate( type, name, meshFilename )
 	{
 		// Set tank template values
@@ -45,7 +46,8 @@ public:
 		m_TurretTurnSpeed = turretTurnSpeed;
 		m_MaxHP = maxHP;
 		m_ShellDamage = shellDamage;
-
+		m_ShellSpeed = shellSpeed;
+		m_ShellLifeTime = shellLifeTime;
 		m_Radius = radius;
 	}
 
@@ -89,6 +91,16 @@ public:
 		return m_ShellDamage;
 	}
 
+	TFloat32 GetShellSpeed()
+	{
+		return m_ShellSpeed;
+	}
+
+	TFloat32 GetShellLifeTime()
+	{
+		return m_ShellLifeTime;
+	}
+
 	TFloat32 GetRadius()
 	{
 		return m_Radius;
@@ -107,8 +119,10 @@ private:
 
 	TUInt32  m_MaxHP;           // Maximum (initial) HP for this kind of tank
 	TUInt32  m_ShellDamage;     // HP damage caused by shells from this kind of tank
-
+	TFloat32 m_ShellSpeed;		// Distance per second of a shell from this kind of tank
+	TFloat32 m_ShellLifeTime;	// Length of time a shell will exist (without hitting)
 	TFloat32 m_Radius;			// Radius of the tank
+
 };
 
 
@@ -199,13 +213,7 @@ private:
 		State_Size	//State_Size is not a real state, but used as a constant for the number of actual states
 	};
 
-	string StateStrings[State_Size]
-	{
-		"Inactive",
-		"Patrol",
-		"Aim",
-		"Evade"
-	};
+	static const string StateStrings[State_Size];
 
 	/////////////////////////////////////
 	// Data
@@ -227,6 +235,9 @@ private:
 	vector<CVector3> m_PatrolWaypoints;
 	vector<CVector3>::iterator m_CurrentWaypoint;
 
+	// Aim state data
+	TEntityUID m_Target;
+
 	/////////////////////////////////////
 	// State Modifications - Private
 
@@ -242,8 +253,8 @@ private:
 	// Check if the tank should consider itself alive or dead - extracted functionality to allow for future invulnerability, alternate death conditions etc
 	bool IsAlive();
 
-	// Check if the tturret is facing the enemy within the selected angle (degrees)
-	bool TurretFacingEnemy(TFloat32 angle);
+	// Check if the turret is facing the enemy within the selected angle (degrees) - returns the entity discovered to be facing by reference parameter (-1 if returns false)
+	bool TurretFacingEnemy(TFloat32 angle, TEntityUID& entityFacing);
 };
 
 

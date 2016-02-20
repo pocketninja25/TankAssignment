@@ -31,6 +31,7 @@
 #include "EntityManager.h"
 #include "Messenger.h"
 #include "CVector4.h"
+#include <sstream>
 
 namespace gen
 {
@@ -47,7 +48,12 @@ extern CMessenger Messenger;
 // Will be needed to implement the required tank behaviour in the Update function below
 extern TEntityUID GetTankUID( int team );
 
-
+const string CTankEntity::StateStrings[State_Size]{
+	"Inactive",
+	"Patrol",
+	"Aim",
+	"Evade"
+};
 
 /*-----------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
@@ -157,6 +163,8 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		break;
 	case State_Patrol:
 	{
+		//TODO: Make turret movement have different speeds (as per the spec)
+
 		// State Description
 		//The tank patrols back and forth between two points, facing its direction of movement
 		//Turret should rotate slowly
@@ -181,8 +189,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 
 		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right
 		// cos(0°) = 1, cos(90°) = 0, cos(180°) = - 1 
-		float dotProd = Dot(rightVector, vectorToWaypoint);
-		if (dotProd > 0)	//< 90° // Turn right (positive)
+		if (Dot(rightVector, vectorToWaypoint) > 0)	//< 90° // Turn right (positive)
 		{
 			TurnRightFlag = true;
 		}
@@ -209,9 +216,11 @@ bool CTankEntity::Update( TFloat32 updateTime )
 
 		// Rotate the turret
 		RotateTurretRightFlag = true;
-
-		if (TurretFacingEnemy(5.0f))
+		
+		TEntityUID enemyFacing;
+		if (TurretFacingEnemy(15.0f, enemyFacing))
 		{
+			m_Target = enemyFacing;
 			MoveToState(State_Aim);
 		}
 
@@ -219,10 +228,42 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		break;
 	case State_Aim:
 	{
-		//TODO: Stop moving and count down a timer (initialised to 1 second)
+		// State Description
+		//Stop moving and count down a timer (initialised to 1 second)
 		//Turret rotates quicker to try point at enemy exactly
 		//When timer = 0, create a shell (fire turret) - go to evade state
-		//TODO: Use FireShell function to fire a shell
+
+		//Stop the tank moving
+		DecelerateFlag = true;
+
+		////////////////////////////////////////////////////////
+		// Aim toward the target tank
+		CTankEntity* targetTank = dynamic_cast<CTankEntity*>(EntityManager.GetEntity(m_Target));
+
+		CVector3 rightVector = CVector3((Matrix() * Matrix(2)).GetRow(0));	//Extract right vector from this turret
+		CVector3 vecToTarget = Normalise(targetTank->Position() - Matrix().TransformPoint(Position(2))); //Get vector from turret to target
+		
+		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right		
+		// cos(0°) = 1, cos(90°) = 0, cos(180°) = - 1 
+		
+		if (Dot(rightVector, vecToTarget) > 0)	//< 90° // Turn right (positive)
+		{
+			RotateTurretRightFlag = true;
+		}
+		else 	//> 90° //Turn left (negative)	//This also deals with facing the directly wrong direction
+		{
+			RotateTurretLeftFlag = true;
+		}
+		///////////////////////////
+
+
+		m_Timer -= updateTime;
+		if (m_Timer <= 0.0f)
+		{
+			FireShell();
+			MoveToState(State_Evade);
+		}
+		
 	}
 		break;
 	case State_Evade:
@@ -237,7 +278,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 	}
 
 	//////////////////////////////////
-	// Perform Tank Body Movement...
+	// Perform Tank Body Movement
 
 	//Perform movement of the tank body (Mesh[0]) based on flags
 
@@ -358,10 +399,18 @@ void CTankEntity::MoveToState(EState newState)
 	}
 }
 
-
 void CTankEntity::FireShell()
 {
-	//TODO: Complete this function to actually fire a shell
+	stringstream nameStream;
+	nameStream << GetName() << "_Shell_" << m_ShellsFired;
+	CVector3 rotation, position, scale;
+	(Matrix() * Matrix(2)).DecomposeAffineEuler(NULL, &rotation, &scale);
+
+	position = Matrix().TransformPoint(Position(2));
+
+	EntityManager.CreateShell("Shell Type 1", m_TankTemplate->GetShellSpeed(), m_TankTemplate->GetShellLifeTime(),
+		nameStream.str(), position, rotation, scale);
+
 	m_ShellsFired++;
 }
 
@@ -377,8 +426,10 @@ bool CTankEntity::IsAlive()
 	return (m_HP > 0);	//Return true if hp is more than 0
 }
 
-bool CTankEntity::TurretFacingEnemy(TFloat32 angle)
+bool CTankEntity::TurretFacingEnemy(TFloat32 angle, TEntityUID& entityFacing)
 {
+	TFloat32 cosAngle = cosf(ToRadians(angle));
+
 	EntityManager.BeginEnumEntities("", "", "Tank");
 	CTankEntity* theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity());
 	while (theOtherTank)
@@ -387,14 +438,12 @@ bool CTankEntity::TurretFacingEnemy(TFloat32 angle)
 		if (theOtherTank->m_Team != this->m_Team)
 		{
 			// This is an enemy tank, determine if the turret points within "angle"° of it
+			CVector3 unitVecToOther = Normalise(theOtherTank->Position() - Matrix().TransformPoint(Position(2)));
+			CVector3 turretFacing = Normalise(CVector3((Matrix(0) * Matrix(2)).GetRow(2)));
 
-			CVector3 unitVecToOther = Normalise(Position(2) - theOtherTank->Position());
-			CVector3 turretFacing = CVector3((Matrix(0) * Matrix(2)).GetRow(2));
-
-			if (acosf(Dot(unitVecToOther, turretFacing)) < ToRadians(angle))
-			{
-				//ALso needs TO Be iN FrONt???
-				if(Dot)
+			if (Dot(unitVecToOther, turretFacing) > cosAngle)
+			{		
+				entityFacing = theOtherTank->GetUID();
 				return true;
 			}
 
@@ -404,6 +453,7 @@ bool CTankEntity::TurretFacingEnemy(TFloat32 angle)
 	}
 	EntityManager.EndEnumEntities();
 
+	entityFacing = -1;
 	return false;
 }
 

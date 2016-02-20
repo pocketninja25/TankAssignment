@@ -57,7 +57,7 @@ public:
 	                                                   const string& mesh, float maxSpeed,
 	                                                   float acceleration, float turnSpeed,
 	                                                   float turretTurnSpeed, int maxHP, 
-													   int shellDamage, float radius );
+													   int shellDamage, float shellSpeed, float shellLifetime, float radius );
 
 
 	// Destroy the given template (name) - returns true if the template existed and was destroyed
@@ -99,7 +99,7 @@ public:
 	(
 		const string&   templateName,
 		const TFloat32&	speed,
-		const TInt32&	lifeTime,
+		const TFloat32&	lifeTime,
 		const string&   name = "",
 		const CVector3& position = CVector3::kOrigin,
 		const CVector3& rotation = CVector3(0.0f, 0.0f, 0.0f),
@@ -172,7 +172,6 @@ public:
 		}
 		return 0;
 	}
-
 
 	// Begin an enumeration of entities matching given name, template name and type
 	// An empty string indicates to match anything in this field (would be nice to support

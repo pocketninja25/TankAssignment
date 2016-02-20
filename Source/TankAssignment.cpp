@@ -129,9 +129,9 @@ bool SceneSetup()
 	// Template type, template name, mesh name, top speed, acceleration, tank turn speed, turret
 	// turn speed, max HP and shell damage. These latter settings are for advanced requirements only
 	EntityManager.CreateTankTemplate("Tank", "Rogue Scout", "HoverTank02.x",
-		24.0f, 2.2f, 2.0f, kfPi / 3, 100, 20, 6.0f);
+		24.0f, 2.2f, 2.0f, kfPi / 3, 100, 20, 40.0f, 5.0f, 6.0f);
 	EntityManager.CreateTankTemplate("Tank", "Oberon MkII", "HoverTank07.x",
-		18.0f, 1.6f, 1.3f, kfPi / 4, 120, 35, 6.0f);
+		18.0f, 1.6f, 1.3f, kfPi / 4, 120, 35, 32.0f, 6.0f, 6.0f);
 
 	// Template for tank shell
 	EntityManager.CreateTemplate("Projectile", "Shell Type 1", "Bullet.x");

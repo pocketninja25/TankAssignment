@@ -78,7 +78,7 @@ private:
 	/////////////////////////////////////
 	// Data
 
-	TInt32 m_LifeTime;		//How long the shell will live (assuming it doesnt die for some other reason)
+	TFloat32 m_LifeTime;	//How long the shell will live (assuming it doesnt die for some other reason)
 	TFloat32 m_Speed;		// Current speed (in facing direction)
 };
 

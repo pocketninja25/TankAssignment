@@ -55,11 +55,11 @@ CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const strin
 CTankTemplate* CEntityManager::CreateTankTemplate(const string& type, const string& name,
 	const string& mesh, float maxSpeed,
 	float acceleration, float turnSpeed,
-	float turretTurnSpeed, int maxHP, int shellDamage, float radius)
+	float turretTurnSpeed, int maxHP, int shellDamage, float shellSpeed, float shellLifetime, float radius)
 {
 	// Create new tank template
 	CTankTemplate* newTemplate = new CTankTemplate(type, name, mesh, maxSpeed, acceleration,
-		turnSpeed, turretTurnSpeed, maxHP, shellDamage, radius);
+		turnSpeed, turretTurnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius);
 
 	// Add the template name / template pointer pair to the map
 	m_Templates[name] = newTemplate;
@@ -173,7 +173,7 @@ TEntityUID CEntityManager::CreateShell
 (
 	const string&   templateName,
 	const TFloat32&	speed,
-	const TInt32&	lifeTime,
+	const TFloat32&	lifeTime,
 	const string&   name /*= ""*/,
 	const CVector3& position /*= CVector3::kOrigin*/,
 	const CVector3& rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
