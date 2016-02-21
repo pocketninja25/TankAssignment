@@ -23,7 +23,6 @@ CEntityManager::CEntityManager()
 	// Set first entity UID that will be used
 	m_NextUID = 0;
 
-	m_IsEnumerating = false;
 }
 
 // Destructor removes all entities
@@ -127,7 +126,7 @@ TEntityUID CEntityManager::CreateEntity
 	// Add mapping from UID to entity index into hash map
 	m_EntityUIDMap->SetKeyValue( m_NextUID, entityIndex );
 	
-	m_IsEnumerating = false; // Cancel any entity enumeration (entity list has changed)
+	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
 
 	// Return UID of new entity then increase it ready for next entity
 	return m_NextUID++;
@@ -138,12 +137,13 @@ TEntityUID CEntityManager::CreateEntity
 // position. Returns the UID of the new entity
 TEntityUID CEntityManager::CreateTank
 (
-	const string&   templateName,
-	TUInt32         team,
-	const string&   name /*= ""*/,
-	const CVector3& position /*= CVector3::kOrigin*/,
-	const CVector3& rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
-	const CVector3& scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
+	const string&			templateName,
+	TUInt32					team,
+	const vector<CVector3>&	patrolPath,
+	const string&			name /*= ""*/,
+	const CVector3&			position /*= CVector3::kOrigin*/,
+	const CVector3&			rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
+	const CVector3&			scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
 	)
 {
 	// Get tank template associated with the template name
@@ -151,7 +151,7 @@ TEntityUID CEntityManager::CreateTank
 	CTankTemplate* tankTemplate = static_cast<CTankTemplate*>(GetTemplate(templateName));
 
 	// Create new tank entity with next UID
-	CEntity* newEntity = new CTankEntity(tankTemplate, m_NextUID, team, name, position, rotation, scale);
+	CEntity* newEntity = new CTankEntity(tankTemplate, m_NextUID, team, patrolPath, name, position, rotation, scale);
 
 	// Get vector index for new entity and add it to vector
 	TUInt32 entityIndex = static_cast<int>(m_Entities.size());
@@ -160,7 +160,7 @@ TEntityUID CEntityManager::CreateTank
 	// Add mapping from UID to entity index into hash map
 	m_EntityUIDMap->SetKeyValue(m_NextUID, entityIndex);
 
-	m_IsEnumerating = false; // Cancel any entity enumeration (entity list has changed)
+	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
 
 							 // Return UID of new entity then increase it ready for next entity
 	return m_NextUID++;
@@ -195,7 +195,7 @@ TEntityUID CEntityManager::CreateShell
 	// Add mapping from UID to entity index into hash map
 	m_EntityUIDMap->SetKeyValue(m_NextUID, entityIndex);
 
-	m_IsEnumerating = false; // Cancel any entity enumeration (entity list has changed)
+	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
 
 							 // Return UID of new entity then increase it ready for next entity
 	return m_NextUID++;
@@ -226,7 +226,7 @@ bool CEntityManager::DestroyEntity( TEntityUID UID )
 	}
 	m_Entities.pop_back(); // Remove last entity
 
-	m_IsEnumerating = false; // Cancel any entity enumeration (entity list has changed)
+	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
 	return true;
 }
 
@@ -241,7 +241,7 @@ void CEntityManager::DestroyAllEntities()
 		m_Entities.pop_back();
 	}
 
-	m_IsEnumerating = false; // Cancel any entity enumeration (entity list has changed)
+	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
 }
 
 

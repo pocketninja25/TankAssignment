@@ -19,6 +19,7 @@
 using namespace std;
 
 #include "Defines.h"
+#include "CVector3.h"
 
 namespace gen
 {
@@ -51,9 +52,9 @@ inline string ToString
 	const T& convertFrom
 )
 {
-    stringstream streamOut;
-    streamOut << convertFrom;
-    return streamOut.str();
+	stringstream streamOut;
+	streamOut << convertFrom;
+	return streamOut.str();
 }
 
 // Specialization of ToString above for string input
@@ -63,7 +64,7 @@ inline string ToString
 	const string& convertFrom
 )
 {
-    return convertFrom;
+	return convertFrom;
 }
 
 
@@ -76,10 +77,10 @@ inline T FromString
 	const string& convertFrom
 )
 {
-    stringstream streamIn( convertFrom );
-    T value = T();
-    streamIn >> value;
-    return value;
+	stringstream streamIn( convertFrom );
+	T value = T();
+	streamIn >> value;
+	return value;
 }
 
 
@@ -97,6 +98,14 @@ string LastDelimitedSubstr
 	const string& sDelimiter
 );
 
+
+bool inline GetIntersection(float fDst1, float fDst2, CVector3 P1, CVector3 P2, CVector3 &Hit);
+
+bool inline InBox(CVector3 Hit, CVector3 B1, CVector3 B2, const int Axis);
+
+// returns true if line (L1, L2) intersects with the box (B1, B2)
+// returns intersection point in Hit
+bool CheckLineBox(CVector3 B1, CVector3 B2, CVector3 L1, CVector3 L2, CVector3 &Hit);
 
 } // namespace gen
 

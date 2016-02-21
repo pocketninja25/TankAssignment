@@ -69,8 +69,9 @@ bool CShellEntity::Update( TFloat32 updateTime )
 	Matrix().MoveLocalZ( m_Speed * updateTime );
 
 	//TODO: Collision detection
-	EntityManager.BeginEnumEntities("", "", "Tank");
-	CTankEntity* theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity());
+	TInt32 enumID;
+	EntityManager.BeginEnumEntities(enumID, "", "", "Tank");
+	CTankEntity* theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity(enumID));
 	while (theTank)
 	{
 		if(theTank->GetUID() != m_FiredBy)
@@ -78,7 +79,7 @@ bool CShellEntity::Update( TFloat32 updateTime )
 
 			if (Length(Position() - theTank->Position()) < theTank->GetRadius())	//If distance between the shell and the tank is less than the tank's radius
 			{
-				EntityManager.EndEnumEntities();
+				EntityManager.EndEnumEntities(enumID);
 				// Hit the tank, send the hit message and destroy the bullet
 				SMessage theHitMessage;
 				theHitMessage.from = GetUID();
@@ -89,10 +90,10 @@ bool CShellEntity::Update( TFloat32 updateTime )
 			}
 
 		}
-		theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity());
+		theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity(enumID));
 	}
 	
-	EntityManager.EndEnumEntities();
+	EntityManager.EndEnumEntities(enumID);
 
 	return true; // Placeholder
 }

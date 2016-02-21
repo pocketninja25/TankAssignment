@@ -32,6 +32,7 @@
 #include "Messenger.h"
 #include "CVector4.h"
 #include <sstream>
+#include "Utility.h"
 
 namespace gen
 {
@@ -65,13 +66,14 @@ const string CTankEntity::StateStrings[State_Size]{
 // class constructor
 CTankEntity::CTankEntity
 (
-	CTankTemplate*  tankTemplate,
-	TEntityUID      UID,
-	TUInt32         team,
-	const string&   name /*=""*/,
-	const CVector3& position /*= CVector3::kOrigin*/, 
-	const CVector3& rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
-	const CVector3& scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
+	CTankTemplate*			tankTemplate,
+	TEntityUID				UID,
+	TUInt32					team,
+	const vector<CVector3>&	patrolPath,
+	const string&			name /*=""*/,
+	const CVector3&			position /*= CVector3::kOrigin*/, 
+	const CVector3&			rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
+	const CVector3&			scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
 ) : CEntity( tankTemplate, UID, name, position, rotation, scale )
 {
 	m_TankTemplate = tankTemplate;
@@ -87,17 +89,7 @@ CTankEntity::CTankEntity
 	m_Timer = 0.0f;
 
 	//Create a patrol point 10 units in front and 10 units behind starting position
-	CVector3 waypoint = position;
-	CVector3 facingVector = CVector3(Matrix().GetRow(2));	//Get Facing vector of tank
-	waypoint.x += (facingVector.x * 40.0f);
-	waypoint.y += (facingVector.y * 40.0f);
-	waypoint.z += (facingVector.z * 40.0f);
-	m_PatrolWaypoints.push_back(waypoint);
-	
-	waypoint.x -= (facingVector.x * 80.0f);
-	waypoint.y -= (facingVector.y * 80.0f);
-	waypoint.z -= (facingVector.z * 80.0f);
-	m_PatrolWaypoints.push_back(waypoint);
+	m_PatrolWaypoints = patrolPath;
 	m_CurrentWaypoint = m_PatrolWaypoints.begin();
 
 	m_Target = -1;
@@ -510,9 +502,9 @@ bool CTankEntity::IsAlive()
 bool CTankEntity::TurretFacingEnemy(TFloat32 angle, TEntityUID& entityFacing)
 {
 	TFloat32 cosAngle = cosf(ToRadians(angle));
-
-	EntityManager.BeginEnumEntities("", "", "Tank");
-	CTankEntity* theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity());
+	TInt32 tankEnumID;
+	EntityManager.BeginEnumEntities(tankEnumID, "", "", "Tank");
+	CTankEntity* theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity(tankEnumID));
 	while (theOtherTank)
 	{
 		// Check if the other tank
@@ -525,15 +517,44 @@ bool CTankEntity::TurretFacingEnemy(TFloat32 angle, TEntityUID& entityFacing)
 			if (Dot(unitVecToOther, turretFacing) > cosAngle)
 			{		
 				entityFacing = theOtherTank->GetUID();
-				EntityManager.EndEnumEntities();
+
+				TInt32 obstacleEnumID;
+				EntityManager.BeginEnumEntities(obstacleEnumID, "", "Building");
+				CEntity* building = EntityManager.EnumEntity(obstacleEnumID);
+				while (building)
+				{
+					//Test for collision with this building
+					//If the ray and building intersect then return false, not looking (obstructed)
+					CVector3 intersectionPoint;
+					if (CheckLineBox(
+						building->Matrix().TransformPoint(building->Template()->Mesh()->MinBounds()),	//The min bound of the mesh (moved to the correct position by the matrix)
+						building->Matrix().TransformPoint(building->Template()->Mesh()->MaxBounds()),										//The max bound of the mesh (moved to the correct position by the matrix)
+						theOtherTank->Position(), 
+						Matrix().TransformPoint(Position(2)), intersectionPoint))
+					{
+						EntityManager.EndEnumEntities(obstacleEnumID);
+						EntityManager.EndEnumEntities(tankEnumID);
+						return false;
+					}
+					else
+					{
+						int q = 6;
+						q++;
+					}
+
+					//Enumerate the next building
+					building = EntityManager.EnumEntity(obstacleEnumID);
+				}
+				EntityManager.EndEnumEntities(obstacleEnumID);
+				EntityManager.EndEnumEntities(tankEnumID);
 				return true;
 			}
 
 		}
 
-		theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity());
+		theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity(tankEnumID));
 	}
-	EntityManager.EndEnumEntities();
+	EntityManager.EndEnumEntities(tankEnumID);
 
 	entityFacing = -1;
 	return false;

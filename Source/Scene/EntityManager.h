@@ -85,12 +85,13 @@ public:
 	// position. Returns the UID of the new entity
 	TEntityUID CreateTank
 	(
-		const string&   templateName,
-		TUInt32         team,
-		const string&   name = "",
-		const CVector3& position = CVector3::kOrigin,
-		const CVector3& rotation = CVector3(0.0f, 0.0f, 0.0f),
-		const CVector3& scale = CVector3(1.0f, 1.0f, 1.0f)
+		const string&			templateName,
+		TUInt32					team,
+		const vector<CVector3>&	patrolPath,
+		const string&			name = "",
+		const CVector3&			position = CVector3::kOrigin,
+		const CVector3&			rotation = CVector3(0.0f, 0.0f, 0.0f),
+		const CVector3&			scale = CVector3(1.0f, 1.0f, 1.0f)
 	);
 
 	// Create a shell, requires a shell template name, may supply entity name and position
@@ -177,47 +178,56 @@ public:
 	// Begin an enumeration of entities matching given name, template name and type
 	// An empty string indicates to match anything in this field (would be nice to support
 	// wildcards, e.g. match name of "Ship*")
-	void BeginEnumEntities( const string& name, const string& templateName,
+	void BeginEnumEntities( TInt32& enumID, const string& name, const string& templateName,
 	                        const string& templateType = "" )
 	{
-		m_IsEnumerating = true;
-		m_EnumEntity = m_Entities.begin();
-		m_EnumName = name;
-		m_EnumTemplateName = templateName;
-		m_EnumTemplateType = templateType;
+		enumID = m_NextEnumID;
+
+		SEnumerationDetails newEnumeration;
+		newEnumeration.EnumEntity = m_Entities.begin();
+		newEnumeration.EnumName = name;
+		newEnumeration.EnumTemplateName = templateName;
+		newEnumeration.EnumTemplateType = templateType;
+		
+		m_Enumeration.emplace(m_NextEnumID, newEnumeration);
+
+		m_NextEnumID++;
 	}
 
 	// Finish enumerating entities (see above)
-	void EndEnumEntities()
+	void EndEnumEntities(TInt32 enumID)
 	{
-		m_IsEnumerating = false;
+		m_Enumeration.erase(enumID);
 	}
 
 	// Return next entity matching parameters passed to a previous call to BeginEnumEntities
 	// Returns 0 if BeginEnumEntities not called or no more matching entities
-	CEntity* EnumEntity()
+	CEntity* EnumEntity(TInt32 enumID)
 	{
-		if (!m_IsEnumerating)
+		if (!m_Enumeration.count(enumID))	//An enumeration of this ID does not exist
 		{
 			return 0;
 		}
 
-		while (m_EnumEntity != m_Entities.end())
+		SEnumerationDetails& thisEnum = m_Enumeration.at(enumID);
+
+		while (thisEnum.EnumEntity != m_Entities.end())
 		{
-			if ((m_EnumName.length() == 0 || (*m_EnumEntity)->GetName() == m_EnumName) && 
-				(m_EnumTemplateName.length() == 0 ||
-				 (*m_EnumEntity)->Template()->GetName() == m_EnumTemplateName) &&
-				(m_EnumTemplateType.length() == 0 ||
-				 (*m_EnumEntity)->Template()->GetType() == m_EnumTemplateType))
+			if ((thisEnum.EnumName.length() == 0 || (*(thisEnum.EnumEntity))->GetName() == thisEnum.EnumName) && 
+				(thisEnum.EnumTemplateName.length() == 0 ||
+				 (*(thisEnum.EnumEntity))->Template()->GetName() == thisEnum.EnumTemplateName) &&
+				(thisEnum.EnumTemplateType.length() == 0 ||
+				 (*(thisEnum.EnumEntity))->Template()->GetType() == thisEnum.EnumTemplateType))
 			{
-				CEntity* foundEntity = *m_EnumEntity;
-				++m_EnumEntity;
+				CEntity* foundEntity = *(thisEnum.EnumEntity);
+				++(thisEnum.EnumEntity);
 				return foundEntity;
 			}
-			++m_EnumEntity;
+			++(thisEnum.EnumEntity);
 		}
 		
-		m_IsEnumerating = false;
+		//Enumeration complete, remove this enum from the list
+		m_Enumeration.erase(enumID);
 		return 0;
 	}
 
@@ -269,15 +279,21 @@ private:
 	// Entity IDs are provided using a single increasing integer
 	TEntityUID m_NextUID;
 
+	//A structure to help with multiple enumerations simultaneously
+	struct SEnumerationDetails
+	{
+		TEntityIter EnumEntity;
+		string		EnumName;
+		string		EnumTemplateName;
+		string		EnumTemplateType;
+	};
+
 
 	/////////////////////////////////////
 	// Data for Entity Enumeration
+	TInt32 m_NextEnumID;
+	map<TInt32, SEnumerationDetails> m_Enumeration;
 
-	bool        m_IsEnumerating;
-	TEntityIter m_EnumEntity;
-	string      m_EnumName;
-	string      m_EnumTemplateName;
-	string      m_EnumTemplateType;
 };
 
 

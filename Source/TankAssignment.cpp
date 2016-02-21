@@ -99,8 +99,7 @@ bool SceneSetup()
 	// Prepare render methods
 
 	InitialiseMethods();
-
-
+	
 	//////////////////////////////////////////
 	// Create scenery templates and entities
 
@@ -116,6 +115,7 @@ bool SceneSetup()
 	EntityManager.CreateEntity("Skybox", "Skybox", CVector3(0.0f, -10000.0f, 0.0f), CVector3::kZero, CVector3(10, 10, 10));
 	EntityManager.CreateEntity("Floor", "Floor");
 	EntityManager.CreateEntity("Building", "Building", CVector3(0.0f, 0.0f, 40.0f));
+
 	for (int tree = 0; tree < 100; ++tree)
 	{
 		// Some random trees
@@ -141,13 +141,25 @@ bool SceneSetup()
 	////////////////////////////////
 	// Create tank entities
 
-	vector<CVector2> patrolPath;
+	vector<CVector3> patrolPath;
+	patrolPath.push_back(CVector3(-20.0f, 0.0f, -20.0f));
+	patrolPath.push_back(CVector3(-20.0f, 0.0f, 20.0f));
+	patrolPath.push_back(CVector3(20.0f, 0.0f, -20.0f));
+	patrolPath.push_back(CVector3(20.0f, 0.0f, 20.0f));
+	patrolPath.push_back(CVector3(-30, 0.0f, -40.0f));
 
 
 	// Type (template name), team number, tank name, position, rotation
-	TankA = EntityManager.CreateTank("Rogue Scout", 0, "A-1", CVector3(-30.0f, 0.5f, -20.0f),
+	TankA = EntityManager.CreateTank("Rogue Scout", 0, patrolPath, "A-1", CVector3(-30.0f, 0.5f, -20.0f),
 		CVector3(0.0f, ToRadians(0.0f), 0.0f));
-	TankB = EntityManager.CreateTank("Oberon MkII", 1, "B-1", CVector3(30.0f, 0.5f, 20.0f),
+
+	patrolPath.clear();
+	patrolPath.push_back(CVector3(40.0f, 0.0f, -30.0f));
+	patrolPath.push_back(CVector3(-20.0f, 0.0f, 20.0f));
+	patrolPath.push_back(CVector3(20.0f, 0.0f, -20.0f));
+	patrolPath.push_back(CVector3(-30, 0.0f, -40.0f));
+	patrolPath.push_back(CVector3(20.0f, 0.0f, 20.0f));
+	TankB = EntityManager.CreateTank("Oberon MkII", 1, patrolPath, "B-1", CVector3(30.0f, 0.5f, 20.0f),
 		CVector3(0.0f, ToRadians(180.0f), 0.0f));
 
 
@@ -304,8 +316,9 @@ void RenderEntityText(CEntityManager& EntityManager)
 {
 	string name = "";
 	string templateName = "";
-	EntityManager.BeginEnumEntities(name, templateName, "Tank");
-	CEntity* theEntity = EntityManager.EnumEntity();
+	TInt32 enumID;
+	EntityManager.BeginEnumEntities(enumID, name, templateName, "Tank");
+	CEntity* theEntity = EntityManager.EnumEntity(enumID);
 	CTankEntity* theTank = dynamic_cast<CTankEntity*> (theEntity);	//Note: This is potentially dangerous, be careful with this
 
 	CVector3 selectedTankColour = CVector3(1.0f, 1.0f, 1.0f);
@@ -369,11 +382,11 @@ void RenderEntityText(CEntityManager& EntityManager)
 			}
 		}
 
-		theEntity = EntityManager.EnumEntity();
+		theEntity = EntityManager.EnumEntity(enumID);
 		theTank = dynamic_cast<CTankEntity*> (theEntity);	//Note: This is potentially dangerous, be careful with this
 	}
 
-	EntityManager.EndEnumEntities();
+	EntityManager.EndEnumEntities(enumID);
 }
 
 // Update the scene between rendering
@@ -396,16 +409,17 @@ void UpdateScene( float updateTime )
 		theMessage.from = -1;	
 		theMessage.type = Msg_Start;
 
-		EntityManager.BeginEnumEntities("", "", "Tank");	
-		CEntity* thisEntity = EntityManager.EnumEntity();
+		TInt32 enumID;
+		EntityManager.BeginEnumEntities(enumID, "", "", "Tank");	
+		CEntity* thisEntity = EntityManager.EnumEntity(enumID);
 		while (thisEntity)
 		{
 			Messenger.SendMessageA(thisEntity->GetUID(), theMessage);
 
 			//Enumerate entity for next iteration
-			thisEntity = EntityManager.EnumEntity();
+			thisEntity = EntityManager.EnumEntity(enumID);
 		}
-		EntityManager.EndEnumEntities();
+		EntityManager.EndEnumEntities(enumID);
 	}
 	// Stop all tanks
 	if (KeyHit(Key_2))
@@ -416,16 +430,17 @@ void UpdateScene( float updateTime )
 		theMessage.from = -1;
 		theMessage.type = Msg_Stop;
 
-		EntityManager.BeginEnumEntities("", "", "Tank");
-		CEntity* thisEntity = EntityManager.EnumEntity();
+		TInt32 enumID;
+		EntityManager.BeginEnumEntities(enumID, "", "", "Tank");
+		CEntity* thisEntity = EntityManager.EnumEntity(enumID);
 		while (thisEntity)
 		{
 			Messenger.SendMessageA(thisEntity->GetUID(), theMessage);
 
 			//Enumerate entity for next iteration
-			thisEntity = EntityManager.EnumEntity();
+			thisEntity = EntityManager.EnumEntity(enumID);
 		}
-		EntityManager.EndEnumEntities();
+		EntityManager.EndEnumEntities(enumID);
 	}
 
 	// Set camera speeds
@@ -441,8 +456,9 @@ void UpdateScene( float updateTime )
 		CEntity* nearestTank = nullptr;
 		TFloat32 distanceToNearestTank;
 
-		EntityManager.BeginEnumEntities("", "", "Tank");
-		CEntity* thisEntity = EntityManager.EnumEntity();
+		TInt32 enumID;
+		EntityManager.BeginEnumEntities(enumID, "", "", "Tank");
+		CEntity* thisEntity = EntityManager.EnumEntity(enumID);
 		while (thisEntity)
 		{
 			if (nearestTank == 0)
@@ -458,9 +474,9 @@ void UpdateScene( float updateTime )
 			}
 
 			//Enumerate entity for next iteration
-			thisEntity = EntityManager.EnumEntity();
+			thisEntity = EntityManager.EnumEntity(enumID);
 		}
-		EntityManager.EndEnumEntities();
+		EntityManager.EndEnumEntities(enumID);
 
 		if (nearestTank)	//There is a chosen tank
 		{

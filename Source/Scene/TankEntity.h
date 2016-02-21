@@ -148,13 +148,14 @@ public:
 	// class constructor
 	CTankEntity
 	(
-		CTankTemplate*  tankTemplate,
-		TEntityUID      UID,
-		TUInt32         team,
-		const string&   name = "",
-		const CVector3& position = CVector3::kOrigin, 
-		const CVector3& rotation = CVector3( 0.0f, 0.0f, 0.0f ),
-		const CVector3& scale = CVector3( 1.0f, 1.0f, 1.0f )
+		CTankTemplate*			tankTemplate,
+		TEntityUID				UID,
+		TUInt32					team,
+		const vector<CVector3>&	patrolPath,
+		const string&			name = "",
+		const CVector3&			position = CVector3::kOrigin, 
+		const CVector3&			rotation = CVector3( 0.0f, 0.0f, 0.0f ),
+		const CVector3&			scale = CVector3( 1.0f, 1.0f, 1.0f )
 	);
 
 	// No destructor needed
@@ -237,8 +238,8 @@ private:
 	TFloat32 m_Timer; // A timer used in the example update function   
 	
 	// Patrol state data
-	vector<CVector2> m_PatrolWaypoints;
-	vector<CVector2>::iterator m_CurrentWaypoint;
+	vector<CVector3> m_PatrolWaypoints;
+	vector<CVector3>::iterator m_CurrentWaypoint;
 
 	// Aim state data
 	TEntityUID m_Target;
