@@ -142,24 +142,33 @@ bool SceneSetup()
 	// Create tank entities
 
 	vector<CVector3> patrolPath;
-	patrolPath.push_back(CVector3(-20.0f, 0.0f, -20.0f));
-	patrolPath.push_back(CVector3(-20.0f, 0.0f, 20.0f));
-	patrolPath.push_back(CVector3(20.0f, 0.0f, -20.0f));
-	patrolPath.push_back(CVector3(20.0f, 0.0f, 20.0f));
-	patrolPath.push_back(CVector3(-30, 0.0f, -40.0f));
+	patrolPath.push_back(CVector3( -150.0f, 0.0f, 50.0f));
+	patrolPath.push_back(CVector3( -120.0f, 0.0f, 86.0f));
+	patrolPath.push_back(CVector3( -68.0f, 0.0f, 96.0f));
+	patrolPath.push_back(CVector3( -39.0f, 0.0f, 65.0f));
+	patrolPath.push_back(CVector3( -10.0f, 0.0f, 25.0f));
+	patrolPath.push_back(CVector3( 20.0f, 0.0f, 30.0f));
+	patrolPath.push_back(CVector3( 46.0f, 0.0f, 160.0f));
+	patrolPath.push_back(CVector3( -100.0f, 0.0f, 155.0f));
+	patrolPath.push_back(CVector3( -117.0f, 0.0f, 113.0f));
+	patrolPath.push_back(CVector3( -142.0f, 0.0f, 110.0f));
+	patrolPath.push_back(CVector3( -152.0f, 0.0f, 165.0f));
+	patrolPath.push_back(CVector3( -212.0f, 0.0f, 155.0f));
 
 
 	// Type (template name), team number, tank name, position, rotation
-	TankA = EntityManager.CreateTank("Rogue Scout", 0, patrolPath, "A-1", CVector3(-30.0f, 0.5f, -20.0f),
+	TankA = EntityManager.CreateTank("Rogue Scout", 0, patrolPath, "A-1", CVector3(-210.0f, 0.5f, 40.0f),
 		CVector3(0.0f, ToRadians(0.0f), 0.0f));
 
 	patrolPath.clear();
-	patrolPath.push_back(CVector3(40.0f, 0.0f, -30.0f));
-	patrolPath.push_back(CVector3(-20.0f, 0.0f, 20.0f));
-	patrolPath.push_back(CVector3(20.0f, 0.0f, -20.0f));
-	patrolPath.push_back(CVector3(-30, 0.0f, -40.0f));
-	patrolPath.push_back(CVector3(20.0f, 0.0f, 20.0f));
-	TankB = EntityManager.CreateTank("Oberon MkII", 1, patrolPath, "B-1", CVector3(30.0f, 0.5f, 20.0f),
+	patrolPath.push_back(CVector3(50.0f, 0.0f, 170.0f));
+	patrolPath.push_back(CVector3(450.0f, 0.0f, 20.0f));
+	patrolPath.push_back(CVector3(-25.0f, 0.0f, 20.0f));
+	patrolPath.push_back(CVector3(-40.0f, 0.0f, 80.0f));
+	patrolPath.push_back(CVector3(-41.0f, 0.0f, 123.0f));
+	patrolPath.push_back(CVector3(-57.0f, 0.0f, 164.0f));
+
+	TankB = EntityManager.CreateTank("Oberon MkII", 1, patrolPath, "B-1", CVector3(50.0f, 0.5f, 170.0f),
 		CVector3(0.0f, ToRadians(180.0f), 0.0f));
 
 

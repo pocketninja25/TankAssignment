@@ -215,6 +215,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		RotateTurretRightFlag = true;
 		
 		TEntityUID enemyFacing;
+		
 		if (TurretFacingEnemy(15.0f, enemyFacing))
 		{
 			m_Target = enemyFacing;
