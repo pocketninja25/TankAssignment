@@ -250,7 +250,7 @@ private:
 	// State Modifications - Private
 
 	// Move from one state to another - ensure state required entry/exit functionality is performed
-	void MoveToState(EState newState);
+	void MoveToState(EState newState, CVector3* position = nullptr);	//Pass an optional parameter which is interpreted based on the state transitioning to
 
 	// Fire a shell
 	void FireShell();

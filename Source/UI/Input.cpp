@@ -53,6 +53,7 @@ void KeyDownEvent( EKeyCode eKeyCode )
 void KeyUpEvent( EKeyCode eKeyCode )
 {
 	g_aiKeyStates[eKeyCode] = kNotPressed;
+
 }
 
 

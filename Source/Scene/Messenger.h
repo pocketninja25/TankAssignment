@@ -24,7 +24,8 @@ enum EMessageType
 	Msg_Start,
 	Msg_Hit,
 	Msg_Stop,
-	Msg_Evade
+	Msg_Evade,
+	Msg_Move
 };
 
 // A message contains a type and the UID that sent it.
@@ -46,10 +47,10 @@ struct SMessage
 		memcpy(this, &o, sizeof(SMessage)); return *this;
 	}
 
-
 	//*** Message data
 	EMessageType type;
 	TEntityUID   from;
+	CVector3	 position;
 };
 
 

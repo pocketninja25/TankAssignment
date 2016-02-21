@@ -294,7 +294,7 @@ void RenderEntityText(CEntityManager& EntityManager)
 	string templateName = "";
 	EntityManager.BeginEnumEntities(name, templateName, "Tank");
 	CEntity* theEntity = EntityManager.EnumEntity();
-	CTankEntity* theTank = dynamic_cast<CTankEntity*> (theEntity);	//TODO: This is dangerous, be careful with this, probably remove before submission
+	CTankEntity* theTank = dynamic_cast<CTankEntity*> (theEntity);	//Note: This is potentially dangerous, be careful with this
 
 	CVector3 selectedTankColour = CVector3(1.0f, 1.0f, 1.0f);
 	CVector3 unselectedTankColour = CVector3(1.0f, 1.0f, 0.0f);
@@ -358,7 +358,7 @@ void RenderEntityText(CEntityManager& EntityManager)
 		}
 
 		theEntity = EntityManager.EnumEntity();
-		theTank = dynamic_cast<CTankEntity*> (theEntity);	//TODO: This is dangerous, be careful with this, probably remove before submission
+		theTank = dynamic_cast<CTankEntity*> (theEntity);	//Note: This is potentially dangerous, be careful with this
 	}
 
 	EntityManager.EndEnumEntities();
@@ -376,9 +376,10 @@ void UpdateScene( float updateTime )
 	}
 	if (KeyHit(Key_1))
 	{
-		//Send a start message to all Tank Entities		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
+		//Send a start message to all Tank Entities		
+		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
 		SMessage theMessage;
-		theMessage.from = -1;	//TODO: Check this is correct - not an entity sending the message - this seems to be for interactions of other messages anyway
+		theMessage.from = -1;	
 		theMessage.type = Msg_Start;
 
 		EntityManager.BeginEnumEntities("", "", "Tank");	
@@ -394,9 +395,10 @@ void UpdateScene( float updateTime )
 	}
 	if (KeyHit(Key_2))
 	{
-		//Send a stop message to all Tank Entities		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
+		//Send a stop message to all Tank Entities		
+		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
 		SMessage theMessage;
-		theMessage.from = -1;	//TODO: Check this is correct - not an entity sending the message - this seems to be for interactions of other messages anyway
+		theMessage.from = -1;
 		theMessage.type = Msg_Stop;
 
 		EntityManager.BeginEnumEntities("", "", "Tank");
@@ -416,8 +418,8 @@ void UpdateScene( float updateTime )
 	if (KeyHit(Key_F2)) CameraMoveSpeed = 5.0f;
 	if (KeyHit(Key_F3)) CameraMoveSpeed = 40.0f;
 
-	// Select a tank
-	if (KeyHit(Key_G))
+	// Select a tank	
+	if (KeyHit(Mouse_LButton))
 	{
 		CVector3 mouseWorldPos = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
 		
@@ -455,10 +457,10 @@ void UpdateScene( float updateTime )
 			else	//Selection is close enough - select the nearest item
 			{
 				SelectedTankUID = nearestTank->GetUID();
-				SMessage theMessage;
-				theMessage.from = -1;
-				theMessage.type = Msg_Evade;
-				Messenger.SendMessageA(SelectedTankUID, theMessage);
+				///SMessage theMessage;
+				///theMessage.from = -1;
+				///theMessage.type = Msg_Evade;
+				///Messenger.SendMessageA(SelectedTankUID, theMessage);
 			}
 		}
 	}
@@ -468,6 +470,14 @@ void UpdateScene( float updateTime )
 		if (SelectedTankUID != -1)	//A tank is selected
 		{
 			//TODO: Move to selected location
+			CVector3 targetLocation = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+
+			SMessage theMoveMessage;
+			theMoveMessage.from = -1;
+			theMoveMessage.type = Msg_Move;
+			theMoveMessage.position = targetLocation;
+
+			Messenger.SendMessageA(SelectedTankUID, theMoveMessage);
 		}
 	}
 

@@ -137,6 +137,8 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		case Msg_Evade:
 			MoveToState(State_Evade);
 			break;
+		case Msg_Move:
+			MoveToState(State_Evade, &msg.position);
 		}
 	}
 
@@ -310,10 +312,11 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		// Turret control
 
 		// Determine whether to turn turret (and in which direction)
+		//Using less expensive calculation, only need to move the turret to it's local z direction, dont need to do matrix multiplication
 		rightVector = CVector3(Matrix(2).GetRow(0));	//Extract (local) right vector from turret
-		CVector3 forwardVector = CVector3(Matrix().GetRow(2));	//Extract target vector (forward) from root
+		CVector3 forwardVector = CVector3(0.0f, 0.0f, 1.0f);	//Forward vector (turret's local space z axis)
 
-		// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right
+		// If angle between vectors is > 90° then tank is pointing in the forward half
 		if (Dot(rightVector, forwardVector) > 0)	//< 90° // Turn right (positive)
 		{
 			RotateTurretRightFlag = true;
@@ -396,7 +399,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 }
 
 // Perform a state transition - make any state entry and exit actions here
-void CTankEntity::MoveToState(EState newState)
+void CTankEntity::MoveToState(EState newState, CVector3* position)
 {
 	//TODO: Consider ramifications of moving from a state to the same state - for now going to ignore these changes
 	if (newState == m_State)
@@ -453,18 +456,25 @@ void CTankEntity::MoveToState(EState newState)
 		break;
 	case State_Evade:
 	{
-		//Select Random position within 40 units of current position 
-		
-		float angle = Random(0.0f, 2* kfPi);	//Select angle to rotate z direction vector by
-		float distance = Random(0.0f, 40.0f);	//Select a distance from 0 to 40 to scale the direction vector by
-		
-		CMatrix4x4 rotationMatrix;
-		rotationMatrix.MakeRotationY(angle);
-		CVector3 direction = CVector3(0.0f, 0.0f, distance);	//Make vector pointing in z of length 'distance'
+		if (!position)
+		{
+			//Select Random position within 40 units of current position 
+			float angle = Random(0.0f, 2 * kfPi);	//Select angle to rotate z direction vector by
+			float distance = Random(0.0f, 40.0f);	//Select a distance from 0 to 40 to scale the direction vector by
 
-		rotationMatrix.TransformVector(direction);	//Rotate the vector to point at the random angle
+			CMatrix4x4 rotationMatrix;
+			rotationMatrix.MakeRotationY(angle);
+			CVector3 direction = CVector3(0.0f, 0.0f, distance);	//Make vector pointing in z of length 'distance'
 
-		m_EvasionTarget = direction + Position();	//Add the tanks Position to the calculated direction to get the randomised evasion position
+			rotationMatrix.TransformVector(direction);	//Rotate the vector to point at the random angle
+
+			m_EvasionTarget = direction + Position();	//Add the tanks Position to the calculated direction to get the randomised evasion position
+		}
+		else
+		{
+			//Interpret position parameter as a value for evasion target
+			m_EvasionTarget = *position;
+		}
 
 		//Move toward this random position (in update)
 	}
