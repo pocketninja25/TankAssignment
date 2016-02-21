@@ -237,8 +237,8 @@ private:
 	TFloat32 m_Timer; // A timer used in the example update function   
 	
 	// Patrol state data
-	vector<CVector3> m_PatrolWaypoints;
-	vector<CVector3>::iterator m_CurrentWaypoint;
+	vector<CVector2> m_PatrolWaypoints;
+	vector<CVector2>::iterator m_CurrentWaypoint;
 
 	// Aim state data
 	TEntityUID m_Target;

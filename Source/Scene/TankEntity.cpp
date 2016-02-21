@@ -401,11 +401,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 // Perform a state transition - make any state entry and exit actions here
 void CTankEntity::MoveToState(EState newState, CVector3* position)
 {
-	//TODO: Consider ramifications of moving from a state to the same state - for now going to ignore these changes
-	if (newState == m_State)
-	{
-		return;
-	}
+
 
 	//////////////////////////////
 	// Perform state exit actions

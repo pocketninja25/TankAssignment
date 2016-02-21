@@ -103,6 +103,11 @@ public:
 	              EKeyCode moveLeft, EKeyCode moveRight,
 				  TFloat32 MoveSpeed, TFloat32 RotSpeed );
 
+	//Controls the camera - turning only
+	void Control(EKeyCode turnUp, EKeyCode turnDown,
+		EKeyCode turnLeft, EKeyCode turnRight,
+		TFloat32 RotSpeed);
+
 
 	///////////////////////////
 	// Camera picking

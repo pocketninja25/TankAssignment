@@ -102,6 +102,26 @@ void CCamera::Control( EKeyCode turnUp, EKeyCode turnDown,
 	}
 }
 
+void CCamera::Control(EKeyCode turnUp, EKeyCode turnDown,
+	EKeyCode turnLeft, EKeyCode turnRight, TFloat32 RotSpeed)
+{
+	if (KeyHeld(turnDown))
+	{
+		m_Matrix.RotateLocalX(RotSpeed);
+	}
+	if (KeyHeld(turnUp))
+	{
+		m_Matrix.RotateLocalX(-RotSpeed);
+	}
+	if (KeyHeld(turnRight))
+	{
+		m_Matrix.RotateY(RotSpeed);
+	}
+	if (KeyHeld(turnLeft))
+	{
+		m_Matrix.RotateY(-RotSpeed);
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Camera picking

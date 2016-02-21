@@ -72,7 +72,9 @@ TEntityUID TankB;
 const int NumLights = 2;
 CLight*  Lights[NumLights];
 SColourRGBA AmbientLight;
+CCamera* SelectedCamera;
 CCamera* MainCamera;
+CCamera* ChaseCamera;
 
 // Sum of recent update times and number of times in the sum - used to calculate
 // average over a given time period
@@ -139,6 +141,9 @@ bool SceneSetup()
 	////////////////////////////////
 	// Create tank entities
 
+	vector<CVector2> patrolPath;
+
+
 	// Type (template name), team number, tank name, position, rotation
 	TankA = EntityManager.CreateTank("Rogue Scout", 0, "A-1", CVector3(-30.0f, 0.5f, -20.0f),
 		CVector3(0.0f, ToRadians(0.0f), 0.0f));
@@ -152,6 +157,12 @@ bool SceneSetup()
 	// Set camera position and clip planes
 	MainCamera = new CCamera(CVector3(0.0f, 30.0f, -100.0f), CVector3(ToRadians(15.0f), 0, 0));
 	MainCamera->SetNearFarClip(1.0f, 20000.0f);
+
+	ChaseCamera = new CCamera(CVector3(0.0f, 30.0f, -100.0f), CVector3(0, 0, 0));
+	ChaseCamera->SetNearFarClip(1.0f, 20000.0f);
+
+	//Set camera default to main camera
+	SelectedCamera = MainCamera;
 
 	// Sunlight and light in building
 	Lights[0] = new CLight(CVector3(-5000.0f, 4000.0f, -10000.0f), SColourRGBA(1.0f, 0.9f, 0.6f), 15000.0f);
@@ -178,6 +189,7 @@ void SceneShutdown()
 
 	// Release camera
 	delete MainCamera;
+	delete ChaseCamera;
 
 	// Destroy all entities
 	EntityManager.DestroyAllEntities();
@@ -221,11 +233,11 @@ void RenderScene( float updateTime )
 	g_pd3dDevice->ClearDepthStencilView( DepthStencilView, D3D10_CLEAR_DEPTH, 1.0f, 0 );
 
 	// Update camera aspect ratio based on viewport size - for better results when changing window size
-	MainCamera->SetAspect( static_cast<TFloat32>(ViewportWidth) / ViewportHeight );
+	SelectedCamera->SetAspect( static_cast<TFloat32>(ViewportWidth) / ViewportHeight );
 
 	// Set camera and light data in shaders
-	MainCamera->CalculateMatrices();
-	SetCamera(MainCamera);
+	SelectedCamera->CalculateMatrices();
+	SetCamera(SelectedCamera);
 	SetAmbientLight(AmbientLight);
 	SetLights(&Lights[0]);
 
@@ -277,7 +289,7 @@ void RenderSceneText( float updateTime )
 		outText.str("");
 	}
 
-	CVector3 mouseWorldPos = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+	CVector3 mouseWorldPos = SelectedCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
 	outText << "X: " << mouseWorldPos.x << endl << "Z: " << mouseWorldPos.z;
 	//outText << "X: " << MouseX << endl << "Z: " << MouseY;	
 	RenderText(outText.str(), 2, 27, 0.0f, 0.0f, 0.0f);
@@ -315,7 +327,7 @@ void RenderEntityText(CEntityManager& EntityManager)
 
 		CVector3 thePosition = theEntity->Position();
 		TInt32 x, y;
-		if (MainCamera->PixelFromWorldPt(thePosition, ViewportWidth, ViewportHeight, &x, &y))
+		if (SelectedCamera->PixelFromWorldPt(thePosition, ViewportWidth, ViewportHeight, &x, &y))
 		{
 			y += 20;	//Move the y pixel coordinate 20 pixels down so the Name information appears underneath the tank
 
@@ -370,10 +382,12 @@ void UpdateScene( float updateTime )
 	// Call all entity update functions
 	EntityManager.UpdateAllEntities( updateTime );
 
+	// Enable/Disable extended tank info
 	if (KeyHit(Key_0))
 	{
 		DisplayExtendedInfo = !DisplayExtendedInfo;
 	}
+	// Start all tanks
 	if (KeyHit(Key_1))
 	{
 		//Send a start message to all Tank Entities		
@@ -393,6 +407,7 @@ void UpdateScene( float updateTime )
 		}
 		EntityManager.EndEnumEntities();
 	}
+	// Stop all tanks
 	if (KeyHit(Key_2))
 	{
 		//Send a stop message to all Tank Entities		
@@ -421,7 +436,7 @@ void UpdateScene( float updateTime )
 	// Select a tank	
 	if (KeyHit(Mouse_LButton))
 	{
-		CVector3 mouseWorldPos = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+		CVector3 mouseWorldPos = SelectedCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
 		
 		CEntity* nearestTank = nullptr;
 		TFloat32 distanceToNearestTank;
@@ -457,20 +472,17 @@ void UpdateScene( float updateTime )
 			else	//Selection is close enough - select the nearest item
 			{
 				SelectedTankUID = nearestTank->GetUID();
-				///SMessage theMessage;
-				///theMessage.from = -1;
-				///theMessage.type = Msg_Evade;
-				///Messenger.SendMessageA(SelectedTankUID, theMessage);
+				
 			}
 		}
 	}
-	// Direct a tank
+	// Make selected tank move
 	if (KeyHit(Mouse_RButton))
 	{
 		if (SelectedTankUID != -1)	//A tank is selected
 		{
-			//TODO: Move to selected location
-			CVector3 targetLocation = MainCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+			//Move to the location pointed at by the mouse
+			CVector3 targetLocation = SelectedCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
 
 			SMessage theMoveMessage;
 			theMoveMessage.from = -1;
@@ -481,10 +493,69 @@ void UpdateScene( float updateTime )
 		}
 	}
 
+	//Update chase camera matrix (if in use)
+	if (SelectedCamera == ChaseCamera)
+	{
+		//Update the chase matrix to stay behind the tank
+		CEntity* tank = EntityManager.GetEntity(SelectedTankUID);
+		if (tank)	//Test if the tank still exists
+		{
+			CMatrix4x4 tankMatrix = tank->Matrix();
+			ChaseCamera->Matrix() = tankMatrix;
 
-	// Move the camera
-	MainCamera->Control( Key_Up, Key_Down, Key_Left, Key_Right, Key_W, Key_S, Key_A, Key_D, 
-						 CameraMoveSpeed * updateTime, CameraRotSpeed * updateTime );
+			CVector3 movement = CVector3(0.0f, 4.0f, -7.0f);
+
+			ChaseCamera->Matrix().MoveLocal(movement);
+			ChaseCamera->Matrix().RotateLocalX(ToRadians(15.0f));
+		}
+		else
+		{
+			//Switch camera back to main camera
+			SelectedCamera = MainCamera;
+		}
+	}
+
+	if (KeyHit(Key_Space))
+	{
+		if (SelectedCamera == MainCamera)
+		{
+			if (SelectedTankUID != -1)
+			{
+				//TODO: switch to chase camera and set its position to chase the selected tank
+				CEntity* tank = EntityManager.GetEntity(SelectedTankUID);
+				if (tank)
+				{
+					CMatrix4x4 tankMatrix = tank->Matrix();
+					ChaseCamera->Matrix() = tankMatrix;
+
+					CVector3 movement = CVector3(0.0f, 4.0f, -7.0f);
+
+					ChaseCamera->Matrix().MoveLocal(movement);
+					ChaseCamera->Matrix().RotateLocalX(ToRadians(15.0f));
+
+					//Switch selected camera to the chase camera
+					SelectedCamera = ChaseCamera;
+				}
+			}
+		}
+		else if (SelectedCamera == ChaseCamera)
+		{
+			//Switch back to the main camera
+			SelectedCamera = MainCamera;
+		}
+	}
+
+	// Move the camera - only allow controls for the selected camera
+	if (SelectedCamera == MainCamera)
+	{
+		MainCamera->Control( Key_Up, Key_Down, Key_Left, Key_Right, Key_W, Key_S, Key_A, Key_D, 
+				 CameraMoveSpeed * updateTime, CameraRotSpeed * updateTime );
+	}
+	else if (SelectedCamera == ChaseCamera)
+	{
+		ChaseCamera->Control(Key_Up, Key_Down, Key_Left, Key_Right, CameraRotSpeed * updateTime);
+	}
+
 }
 
 
