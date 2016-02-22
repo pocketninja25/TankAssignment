@@ -18,6 +18,7 @@ using namespace std;
 #include "EntityManager.h"
 #include "Messenger.h"
 #include "TankAssignment.h"
+#include "Utility.h"
 
 namespace gen
 {
@@ -101,20 +102,14 @@ bool SceneSetup()
 	InitialiseMethods();
 	
 	//////////////////////////////////////////
-	// Create scenery templates and entities
+	// Load Scene from file
+	EntityManager.CreateScene("Scene.xml");
 
-	// Create scenery templates - loads the meshes
-	// Template type, template name, mesh name
-	EntityManager.CreateTemplate("Scenery", "Skybox", "Skybox.x");
-	EntityManager.CreateTemplate("Scenery", "Floor", "Floor.x");
-	EntityManager.CreateTemplate("Scenery", "Building", "Building.x");
-	EntityManager.CreateTemplate("Scenery", "Tree", "Tree1.x");
+	//////////////////////////////////////////
+	// Create scenery templates and entities
 
 	// Creates scenery entities
 	// Type (template name), entity name, position, rotation, scale
-	EntityManager.CreateEntity("Skybox", "Skybox", CVector3(0.0f, -10000.0f, 0.0f), CVector3::kZero, CVector3(10, 10, 10));
-	EntityManager.CreateEntity("Floor", "Floor");
-	EntityManager.CreateEntity("Building", "Building", CVector3(0.0f, 0.0f, 40.0f));
 
 	for (int tree = 0; tree < 100; ++tree)
 	{
@@ -123,53 +118,6 @@ bool SceneSetup()
 									CVector3(Random(-200.0f, 30.0f), 0.0f, Random(40.0f, 150.0f)),
 									CVector3(0.0f, Random(0.0f, 2.0f * kfPi), 0.0f) );
 	}
-
-
-	/////////////////////////////////
-	// Create tank templates
-
-	// Template type, template name, mesh name, top speed, acceleration, tank turn speed, turret
-	// turn speed, max HP and shell damage. These latter settings are for advanced requirements only
-	EntityManager.CreateTankTemplate("Tank", "Rogue Scout", "HoverTank02.x",
-		24.0f, 2.2f, 2.0f, kfPi / 3, 100, 20, 40.0f, 5.0f, 6.0f);
-	EntityManager.CreateTankTemplate("Tank", "Oberon MkII", "HoverTank07.x",
-		18.0f, 1.6f, 1.3f, kfPi / 4, 120, 35, 32.0f, 6.0f, 6.0f);
-
-	// Template for tank shell
-	EntityManager.CreateTemplate("Projectile", "Shell Type 1", "Bullet.x");
-	
-	////////////////////////////////
-	// Create tank entities
-
-	vector<CVector3> patrolPath;
-	patrolPath.push_back(CVector3( -150.0f, 0.0f, 50.0f));
-	patrolPath.push_back(CVector3( -120.0f, 0.0f, 86.0f));
-	patrolPath.push_back(CVector3( -68.0f, 0.0f, 96.0f));
-	patrolPath.push_back(CVector3( -39.0f, 0.0f, 65.0f));
-	patrolPath.push_back(CVector3( -10.0f, 0.0f, 25.0f));
-	patrolPath.push_back(CVector3( 20.0f, 0.0f, 30.0f));
-	patrolPath.push_back(CVector3( 46.0f, 0.0f, 160.0f));
-	patrolPath.push_back(CVector3( -100.0f, 0.0f, 155.0f));
-	patrolPath.push_back(CVector3( -117.0f, 0.0f, 113.0f));
-	patrolPath.push_back(CVector3( -142.0f, 0.0f, 110.0f));
-	patrolPath.push_back(CVector3( -152.0f, 0.0f, 165.0f));
-	patrolPath.push_back(CVector3( -212.0f, 0.0f, 155.0f));
-
-
-	// Type (template name), team number, tank name, position, rotation
-	TankA = EntityManager.CreateTank("Rogue Scout", 0, patrolPath, "A-1", CVector3(-210.0f, 0.5f, 40.0f),
-		CVector3(0.0f, ToRadians(0.0f), 0.0f));
-
-	patrolPath.clear();
-	patrolPath.push_back(CVector3(50.0f, 0.0f, 170.0f));
-	patrolPath.push_back(CVector3(450.0f, 0.0f, 20.0f));
-	patrolPath.push_back(CVector3(-25.0f, 0.0f, 20.0f));
-	patrolPath.push_back(CVector3(-40.0f, 0.0f, 80.0f));
-	patrolPath.push_back(CVector3(-41.0f, 0.0f, 123.0f));
-	patrolPath.push_back(CVector3(-57.0f, 0.0f, 164.0f));
-
-	TankB = EntityManager.CreateTank("Oberon MkII", 1, patrolPath, "B-1", CVector3(50.0f, 0.5f, 170.0f),
-		CVector3(0.0f, ToRadians(180.0f), 0.0f));
 
 
 	/////////////////////////////
@@ -490,6 +438,7 @@ void UpdateScene( float updateTime )
 		if (nearestTank)	//There is a chosen tank
 		{
 			//If the distance to the nearest tank is too far deselect all tanks
+			CVector3 intersectionPoint;
 			if (distanceToNearestTank > 9.0f)
 			{
 				SelectedTankUID = -1;

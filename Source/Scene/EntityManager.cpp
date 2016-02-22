@@ -23,6 +23,7 @@ CEntityManager::CEntityManager()
 	// Set first entity UID that will be used
 	m_NextUID = 0;
 
+	m_XMLReader.SetFilePath(".\\Source\\Resources\\");
 }
 
 // Destructor removes all entities
@@ -36,6 +37,15 @@ CEntityManager::~CEntityManager()
 /////////////////////////////////////
 // Template creation / destruction
 
+void CEntityManager::CreateScene(const string& file)
+{
+	m_XMLReader.LoadScene(file);
+
+	
+
+
+}
+
 // Create a base entity template with the given type, name and mesh. Returns the new entity
 // template pointer
 CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const string& name, const string& mesh )
@@ -47,6 +57,13 @@ CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const strin
 	m_Templates[name] = newTemplate;
 
 	return newTemplate;
+}
+
+CEntityTemplate* CEntityManager::CreateTemplate(const string & file)
+{
+	// Load new entity template
+	return m_XMLReader.LoadEntityTemplate(file);
+
 }
 
 // Create a tank template with the given type, name, mesh and stats. Returns the new entity
@@ -65,6 +82,14 @@ CTankTemplate* CEntityManager::CreateTankTemplate(const string& type, const stri
 
 	return newTemplate;
 }
+
+CTankTemplate * CEntityManager::CreateTankTemplate(const string & file)
+{
+	// Load new entity template
+	return m_XMLReader.LoadTankTemplate(file);
+}
+
+
 
 // Destroy the given template (name) - returns true if the template existed and was destroyed
 bool CEntityManager::DestroyTemplate( const string& name )
@@ -202,6 +227,7 @@ TEntityUID CEntityManager::CreateShell
 }
 
 
+
 // Destroy the given entity - returns true if the entity existed and was destroyed
 bool CEntityManager::DestroyEntity( TEntityUID UID )
 {
@@ -229,7 +255,6 @@ bool CEntityManager::DestroyEntity( TEntityUID UID )
 	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
 	return true;
 }
-
 
 // Destroy all entities held by the manager
 void CEntityManager::DestroyAllEntities()

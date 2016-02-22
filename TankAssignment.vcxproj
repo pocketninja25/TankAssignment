@@ -57,7 +57,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Expat 2.1.0\Source\lib;Source\Common;Source\Data;Source\Math;Source\Scene;Source\Render;Source\UI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Expat 2.1.0\Source\lib;Source\Common;Source\Data;Source\Math;Source\Scene;Source\Render;Source\UI;Source\XML;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -94,7 +94,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Expat 2.1.0\Source\lib;Source\Common;Source\Data;Source\Math;Source\Scene;Source\Render;Source\UI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Expat 2.1.0\Source\lib;Source\Common;Source\Data;Source\Math;Source\Scene;Source\Render;Source\UI;Source\XML;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -152,6 +152,11 @@
     <ClCompile Include="Source\Math\MathIO.cpp" />
     <ClCompile Include="Source\MainApp.cpp" />
     <ClCompile Include="Source\TankAssignment.cpp" />
+    <ClCompile Include="Source\XML\tinystr.cpp" />
+    <ClCompile Include="Source\XML\tinyxml.cpp" />
+    <ClCompile Include="Source\XML\tinyxmlerror.cpp" />
+    <ClCompile Include="Source\XML\tinyxmlparser.cpp" />
+    <ClCompile Include="Source\XML\XMLReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\Camera.h" />
@@ -186,10 +191,25 @@
     <ClInclude Include="Source\Math\MathDX.h" />
     <ClInclude Include="Source\Math\MathIO.h" />
     <ClInclude Include="Source\TankAssignment.h" />
+    <ClInclude Include="Source\XML\tinystr.h" />
+    <ClInclude Include="Source\XML\tinyxml.h" />
+    <ClInclude Include="Source\XML\XMLReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="Source\Render\TankAssignment.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Source\Resources\BuildingTemplate.xml" />
+    <Xml Include="Source\Resources\BulletTemplate.xml" />
+    <Xml Include="Source\Resources\FloorTemplate.xml" />
+    <Xml Include="Source\Resources\OberonMKIITemplate.xml" />
+    <Xml Include="Source\Resources\PatrolRoute1.xml" />
+    <Xml Include="Source\Resources\PatrolRoute2.xml" />
+    <Xml Include="Source\Resources\RogueScoutTemplate.xml" />
+    <Xml Include="Source\Resources\Scene.xml" />
+    <Xml Include="Source\Resources\SkyboxTemplate.xml" />
+    <Xml Include="Source\Resources\TreeTemplate.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

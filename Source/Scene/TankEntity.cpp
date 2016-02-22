@@ -87,7 +87,7 @@ CTankEntity::CTankEntity
 	m_ShellsFired = 0;
 	m_State = State_Inactive;
 	m_Timer = 0.0f;
-
+	
 	//Create a patrol point 10 units in front and 10 units behind starting position
 	m_PatrolWaypoints = patrolPath;
 	m_CurrentWaypoint = m_PatrolWaypoints.begin();
@@ -511,50 +511,54 @@ bool CTankEntity::TurretFacingEnemy(TFloat32 angle, TEntityUID& entityFacing)
 		// Check if the other tank
 		if (theOtherTank->m_Team != this->m_Team)
 		{
-			// This is an enemy tank, determine if the turret points within "angle"° of it
-			CVector3 unitVecToOther = Normalise(theOtherTank->Position() - Matrix().TransformPoint(Position(2)));
-			CVector3 turretFacing = Normalise(CVector3((Matrix(0) * Matrix(2)).GetRow(2)));
+			//Determine if the other tank is close enough to be shot before the bullet 'dies'
+			if(Length(theOtherTank->Position() - Matrix().TransformPoint(Position(2))) < m_TankTemplate->GetShotDistance())
+			{
+				CVector3 unitVecToOther = Normalise(theOtherTank->Position() - Matrix().TransformPoint(Position(2)));
+				CVector3 turretFacing = Normalise(CVector3((Matrix(0) * Matrix(2)).GetRow(2)));
 
-			if (Dot(unitVecToOther, turretFacing) > cosAngle)
-			{		
-				entityFacing = theOtherTank->GetUID();
-
-				TInt32 obstacleEnumID;
-				EntityManager.BeginEnumEntities(obstacleEnumID, "", "Building");
-				CEntity* building = EntityManager.EnumEntity(obstacleEnumID);
-				while (building)
-				{
-					//Test for collision with this building
-					//If the ray and building intersect then return false, not looking (obstructed)
-					CVector3 intersectionPoint;
-					if (CheckLineBox(
-						building->Matrix().TransformPoint(building->Template()->Mesh()->MinBounds()),	//The min bound of the mesh (moved to the correct position by the matrix)
-						building->Matrix().TransformPoint(building->Template()->Mesh()->MaxBounds()),										//The max bound of the mesh (moved to the correct position by the matrix)
-						theOtherTank->Position(), 
-						Matrix().TransformPoint(Position(2)), intersectionPoint))
+				//determine if the turret points within "angle"° of the enemy tank
+				if (Dot(unitVecToOther, turretFacing) > cosAngle)
+				{	
+					entityFacing = theOtherTank->GetUID();
+					//Determine if the tank can see the target (has line of sight)
+					TInt32 obstacleEnumID;
+					EntityManager.BeginEnumEntities(obstacleEnumID, "", "Building");
+					CEntity* building = EntityManager.EnumEntity(obstacleEnumID);
+					while (building)
 					{
-						EntityManager.EndEnumEntities(obstacleEnumID);
-						EntityManager.EndEnumEntities(tankEnumID);
-						return false;
-					}
-					else
-					{
-						int q = 6;
-						q++;
-					}
+						//Test for collision with this building
+						//If the ray and building intersect then return false, not looking (obstructed)
+						CVector3 intersectionPoint;
+						if (CheckLineBox(
+							building->Matrix().TransformPoint(building->Template()->Mesh()->MinBounds()),	//The min bound of the mesh (moved to the correct position by the matrix)
+							building->Matrix().TransformPoint(building->Template()->Mesh()->MaxBounds()),										//The max bound of the mesh (moved to the correct position by the matrix)
+							theOtherTank->Position(),
+							Matrix().TransformPoint(Position(2)), intersectionPoint))
+						{
+							EntityManager.EndEnumEntities(obstacleEnumID);
+							EntityManager.EndEnumEntities(tankEnumID);
+							return false;
+						}
+						else
+						{
+							int q = 6;
+							q++;
+						}
 
-					//Enumerate the next building
-					building = EntityManager.EnumEntity(obstacleEnumID);
-				}
-				EntityManager.EndEnumEntities(obstacleEnumID);
-				EntityManager.EndEnumEntities(tankEnumID);
-				return true;
-			}
+						//Enumerate the next building
+						building = EntityManager.EnumEntity(obstacleEnumID);
+					}
+					EntityManager.EndEnumEntities(obstacleEnumID);
+					EntityManager.EndEnumEntities(tankEnumID);
+					return true;
+				}	//End of is other tank within angle
+			} //End of is other tank within range
 
-		}
+		} // End of is other tank on the enemy team
 
 		theOtherTank = dynamic_cast<CTankEntity*>(EntityManager.EnumEntity(tankEnumID));
-	}
+	}	//While end - tank enumeration loop
 	EntityManager.EndEnumEntities(tankEnumID);
 
 	entityFacing = -1;

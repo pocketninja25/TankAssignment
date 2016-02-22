@@ -19,6 +19,21 @@
     <Filter Include="Math">
       <UniqueIdentifier>{7424d7d2-c818-4117-bbab-d74c82b531aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="XML Files">
+      <UniqueIdentifier>{905a47e9-8ed3-4a43-be4e-3302ed62da60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TinyXML">
+      <UniqueIdentifier>{68273a01-acf3-44de-832c-837b0efc2ed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML Files\Templates">
+      <UniqueIdentifier>{b3e38e5f-b8d4-4000-8397-b7ca4f67f34f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML Files\Templates\Tanks">
+      <UniqueIdentifier>{585914fb-2111-48f4-be2f-04c6d7db15c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XML Files\Templates\Scenery">
+      <UniqueIdentifier>{ab48c3a3-0642-4f6e-a05d-f5444055bfb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Scene\Camera.cpp">
@@ -101,6 +116,19 @@
     <ClCompile Include="Source\Scene\TankEntity.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\XML\tinystr.cpp">
+      <Filter>TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XML\tinyxml.cpp">
+      <Filter>TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XML\tinyxmlerror.cpp">
+      <Filter>TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XML\tinyxmlparser.cpp">
+      <Filter>TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XML\XMLReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\Camera.h">
@@ -197,11 +225,50 @@
     <ClInclude Include="Source\Scene\TankEntity.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Source\XML\tinystr.h">
+      <Filter>TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\XML\tinyxml.h">
+      <Filter>TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\XML\XMLReader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Render\TankAssignment.fx">
       <Filter>Render</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Source\Resources\BuildingTemplate.xml">
+      <Filter>XML Files\Templates\Scenery</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\FloorTemplate.xml">
+      <Filter>XML Files\Templates\Scenery</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\SkyboxTemplate.xml">
+      <Filter>XML Files\Templates\Scenery</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\TreeTemplate.xml">
+      <Filter>XML Files\Templates\Scenery</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\OberonMKIITemplate.xml">
+      <Filter>XML Files\Templates\Tanks</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\RogueScoutTemplate.xml">
+      <Filter>XML Files\Templates\Tanks</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\BulletTemplate.xml">
+      <Filter>XML Files\Templates</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\Scene.xml">
+      <Filter>XML Files</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\PatrolRoute1.xml">
+      <Filter>XML Files</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\PatrolRoute2.xml">
+      <Filter>XML Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

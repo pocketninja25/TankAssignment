@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Scene>
+  <Templates>
+      <TankTemplate file="OberonMKIITemplate.xml"/>
+      <TankTemplate file="RogueScoutTemplate.xml"/>
+      <EntityTemplate file="BuildingTemplate.xml"/>
+      <EntityTemplate file="FloorTemplate.xml"/>
+      <EntityTemplate file="SkyboxTemplate.xml"/>
+      <EntityTemplate file="TreeTemplate.xml"/>
+      <EntityTemplate file="BulletTemplate.xml"/>
+  </Templates>
+
+  <Entities>
+    <Entity templateName="Skybox" name="Skybox">
+      <Position  x="0.0" y="-10000.0" z="0.0"/>
+      <Rotation x="0.0" y="0.0" z="0.0"/>
+      <Scale x="10" y="10" z="10"/>
+    </Entity>
+    <Entity templateName="Floor" name="Floor">
+    </Entity>
+    <Entity templateName="Building" name="Building">
+      <Position x="0.0" y="0.0" z="40.0"/>
+    </Entity>
+  </Entities>
+    
+  <Tanks>
+    <Tank templateName="Rogue Scout" team="0" name="A-1" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-210.0" y="0.5" z="40.0"/>
+    </Tank>
+    <Tank templateName="Oberon MkII" team="1" name="B-1" patrolRoute="PatrolRoute2.xml">
+      <Position  x="5.0" y="0.5" z="170.0"/>
+      <Rotation  x="0.0" y="3.142" z="0.0"/>
+    </Tank>
+    <Tank templateName="Oberon MkII" team="3" name="C-1" patrolRoute="PatrolRoute1.xml">
+       <Rotation  x="0.0" y="3.142" z="0.0"/>
+    </Tank>
+  </Tanks>
+  
+</Scene>

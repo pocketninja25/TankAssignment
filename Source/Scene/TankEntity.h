@@ -49,6 +49,7 @@ public:
 		m_ShellSpeed = shellSpeed;
 		m_ShellLifeTime = shellLifeTime;
 		m_Radius = radius;
+		m_ShellDistance = m_ShellSpeed * m_ShellLifeTime;
 	}
 
 	// No destructor needed (base class one will do)
@@ -106,6 +107,11 @@ public:
 		return m_Radius;
 	}
 
+	TFloat32 GetShotDistance()
+	{
+		return m_ShellDistance;
+	}
+
 
 /////////////////////////////////////
 //	Private interface
@@ -122,7 +128,7 @@ private:
 	TFloat32 m_ShellSpeed;		// Distance per second of a shell from this kind of tank
 	TFloat32 m_ShellLifeTime;	// Length of time a shell will exist (without hitting)
 	TFloat32 m_Radius;			// Radius of the tank
-
+	TFloat32 m_ShellDistance;	// How far the tank can shoot (dont bother shooting if too far)
 };
 
 

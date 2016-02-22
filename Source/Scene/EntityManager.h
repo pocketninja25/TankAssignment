@@ -16,6 +16,7 @@ using namespace std;
 #include "TankEntity.h"
 #include "ShellEntity.h"
 #include "Camera.h"
+#include "XMLReader.h"
 
 namespace gen
 {
@@ -45,11 +46,17 @@ private:
 public:
 
 	/////////////////////////////////////
+	// Scene creation
+	void CEntityManager::CreateScene(const string& file);
+
+	/////////////////////////////////////
 	// Template creation / destruction
 
 	// Create a base entity template with the given type, name and mesh. Returns the new entity
 	// template pointer
 	CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const string& name, const string& mesh	);
+
+	CEntityTemplate* CEntityManager::CreateTemplate(const string& file);
 
 	// Create a tank template with the given type, name, mesh and stats. Returns the new entity
 	// template pointer
@@ -58,7 +65,8 @@ public:
 	                                                   float acceleration, float turnSpeed,
 	                                                   float turretTurnSpeed, int maxHP, 
 													   int shellDamage, float shellSpeed, float shellLifetime, float radius );
-
+	
+	CTankTemplate* CEntityManager::CreateTankTemplate(const string& file);
 
 	// Destroy the given template (name) - returns true if the template existed and was destroyed
 	bool DestroyTemplate( const string& name );
@@ -245,6 +253,11 @@ public:
 /////////////////////////////////////
 //	Private interface
 private:
+
+	/////////////////////////////////////
+	// XML Parser
+
+	XMLReader m_XMLReader;
 
 	/////////////////////////////////////
 	// Types

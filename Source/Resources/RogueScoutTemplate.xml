@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TankTemplate
+  Type="Tank"
+  Name="Rogue Scout"
+  Mesh="HoverTank02.x"
+  MaxSpeed="24.0"
+  Acceleration="2.2"
+  TurnSpeed="2.0"
+  TurretTurnSpeed="1.047"
+  MaxHP="100"
+  ShellDamage="20"
+  ShellSpeed="40.0"
+  ShellLifetime="5.0"
+  Radius="6.0"
+  ShellTemplateName="Shell Type 1"
+/>
