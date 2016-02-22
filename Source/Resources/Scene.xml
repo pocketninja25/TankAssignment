@@ -4,6 +4,7 @@
   <Templates>
       <TankTemplate file="OberonMKIITemplate.xml"/>
       <TankTemplate file="RogueScoutTemplate.xml"/>
+      <TankTemplate file="TigerTankTemplate.xml"/>
       <EntityTemplate file="BuildingTemplate.xml"/>
       <EntityTemplate file="FloorTemplate.xml"/>
       <EntityTemplate file="SkyboxTemplate.xml"/>
@@ -19,8 +20,29 @@
     </Entity>
     <Entity templateName="Floor" name="Floor">
     </Entity>
-    <Entity templateName="Building" name="Building">
+    <Entity templateName="Building" name="Building1">
       <Position x="0.0" y="0.0" z="40.0"/>
+      <Scale x="2.0" y="2.0" z="2.0"/>
+    </Entity>
+    <Entity templateName="Building" name="Building2">
+      <Position x="12.0" y="0.0" z="120.0"/>
+      <Scale x="2.0" y="2.0" z="2.0"/>
+    </Entity>
+    <Entity templateName="Building" name="Building3">
+      <Position x="-25.0" y="0.0" z="250.0"/>
+      <Scale x="2.0" y="2.0" z="2.0"/>
+    </Entity>
+    <Entity templateName="Building" name="Building4">
+      <Position x="-157.0" y="0.0" z="236.0"/>
+      <Scale x="2.0" y="2.0" z="2.0"/>
+    </Entity>
+    <Entity templateName="Building" name="Building3">
+      <Position x="-266.0" y="0.0" z="95.0"/>
+      <Scale x="2.0" y="2.0" z="2.0"/>
+    </Entity>
+    <Entity templateName="Building" name="Building3">
+      <Position x="0.0" y="0.0" z="-120.0"/>
+      <Scale x="2.0" y="2.0" z="2.0"/>
     </Entity>
   </Entities>
     
@@ -28,13 +50,56 @@
     <Tank templateName="Rogue Scout" team="0" name="A-1" patrolRoute="PatrolRoute1.xml">
       <Position  x="-210.0" y="0.5" z="40.0"/>
     </Tank>
+    <Tank templateName="Rogue Scout" team="0" name="A-2" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-215.0" y="0.5" z="81.0"/>
+    </Tank>
+    <Tank templateName="Rogue Scout" team="0" name="A-3" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-283.0" y="0.5" z="174.0"/>
+    </Tank>
+    <Tank templateName="Rogue Scout" team="0" name="A-4" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-194.0" y="0.5" z="162.0"/>
+    </Tank>
+    <Tank templateName="Rogue Scout" team="0" name="A-5" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-262.0" y="0.5" z="305.0"/>
+    </Tank>
+    
     <Tank templateName="Oberon MkII" team="1" name="B-1" patrolRoute="PatrolRoute2.xml">
       <Position  x="5.0" y="0.5" z="170.0"/>
       <Rotation  x="0.0" y="3.142" z="0.0"/>
     </Tank>
-    <Tank templateName="Oberon MkII" team="3" name="C-1" patrolRoute="PatrolRoute1.xml">
-       <Rotation  x="0.0" y="3.142" z="0.0"/>
+    <Tank templateName="Oberon MkII" team="1" name="B-2" patrolRoute="PatrolRoute2.xml">
+      <Position  x="26" y="0.5" z="328.0"/>
+      <Rotation  x="0.0" y="3.142" z="0.0"/>
+    </Tank>
+    <Tank templateName="Oberon MkII" team="1" name="B-3" patrolRoute="PatrolRoute2.xml">
+      <Position  x="5.0" y="0.5" z="170.0"/>
+      <Rotation  x="0.0" y="3.142" z="0.0"/>
+    </Tank>
+    <Tank templateName="Oberon MkII" team="1" name="B-4" patrolRoute="PatrolRoute2.xml">
+      <Position  x="76.0" y="0.5" z="160.0"/>
+      <Rotation  x="0.0" y="3.142" z="0.0"/>
+    </Tank>
+    <Tank templateName="Oberon MkII" team="1" name="B-5" patrolRoute="PatrolRoute2.xml">
+      <Position  x="34.0" y="0.5" z="46.0"/>
+      <Rotation  x="0.0" y="3.142" z="0.0"/>
+    </Tank>
+    
+    <Tank templateName="Tiger Tank" team="3" name="C-1" patrolRoute="PatrolRoute1.xml">
+       <Position  x="-121" y="3.142" z="263"/>
+    </Tank>
+    <Tank templateName="Tiger Tank" team="3" name="C-2" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-73" y="3.142" z="211"/>
+    </Tank>
+    <Tank templateName="Tiger Tank" team="3" name="C-3" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-101" y="3.142" z="150"/>
+    </Tank>
+    <Tank templateName="Tiger Tank" team="3" name="C-4" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-57" y="3.142" z="68"/>
+    </Tank>
+    <Tank templateName="Tiger Tank" team="3" name="C-5" patrolRoute="PatrolRoute1.xml">
+      <Position  x="-78" y="3.142" z="16"/>
     </Tank>
   </Tanks>
+  
   
 </Scene>

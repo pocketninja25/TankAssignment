@@ -200,6 +200,7 @@
     <None Include="Source\Render\TankAssignment.fx" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="Source\Resources\TigerTankTemplate.xml" />
     <Xml Include="Source\Resources\BuildingTemplate.xml" />
     <Xml Include="Source\Resources\BulletTemplate.xml" />
     <Xml Include="Source\Resources\FloorTemplate.xml" />

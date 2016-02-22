@@ -270,5 +270,8 @@
     <Xml Include="Source\Resources\PatrolRoute2.xml">
       <Filter>XML Files</Filter>
     </Xml>
+    <Xml Include="Source\Resources\TigerTankTemplate.xml">
+      <Filter>XML Files\Templates\Tanks</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TankTemplate
+  Type="Tank"
+  Name="Tiger Tank"
+  Mesh="HoverTank05.x"
+  MaxSpeed="5.0"
+  Acceleration="0.6"
+  TurnSpeed="0.5"
+  TurretTurnSpeed="3.047"
+  MaxHP="700"
+  ShellDamage="50"
+  ShellSpeed="80.0"
+  ShellLifetime="4.0"
+  Radius="6.0"
+  ShellTemplateName="Shell Type 1"
+/>

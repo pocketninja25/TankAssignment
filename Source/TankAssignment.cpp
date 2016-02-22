@@ -115,7 +115,7 @@ bool SceneSetup()
 	{
 		// Some random trees
 		EntityManager.CreateEntity( "Tree", "Tree",
-									CVector3(Random(-200.0f, 30.0f), 0.0f, Random(40.0f, 150.0f)),
+									CVector3(Random(-350.0f, 120.0f), 0.0f, Random(60.0f, 350.0f)),
 									CVector3(0.0f, Random(0.0f, 2.0f * kfPi), 0.0f) );
 	}
 
