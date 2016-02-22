@@ -8,10 +8,11 @@
   Acceleration="0.6"
   TurnSpeed="0.5"
   TurretTurnSpeed="3.047"
-  MaxHP="700"
+  MaxHP="300"
   ShellDamage="50"
   ShellSpeed="80.0"
   ShellLifetime="4.0"
   Radius="6.0"
   ShellTemplateName="Shell Type 1"
+  AmmoCapacity="30"
 />

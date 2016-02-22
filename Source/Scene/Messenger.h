@@ -25,7 +25,8 @@ enum EMessageType
 	Msg_Hit,
 	Msg_Stop,
 	Msg_Evade,
-	Msg_Move
+	Msg_Move,
+	Msg_Ammo
 };
 
 // A message contains a type and the UID that sent it.
@@ -50,7 +51,8 @@ struct SMessage
 	//*** Message data
 	EMessageType type;
 	TEntityUID   from;
-	CVector3	 position;
+	CVector3	 vec3Param;		//An optional data member used by some messages
+	TInt32		 intParam;	//An optional data member used by some messages
 };
 
 

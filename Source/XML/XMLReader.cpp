@@ -43,7 +43,7 @@ CTankTemplate* XMLReader::LoadTankTemplate(const string& fileName)
 		//Define data types to extract
 		string type, name, mesh;
 		float maxSpeed, acceleration, turnSpeed, turretturnSpeed, shellSpeed, shellLifetime, radius;
-		int maxHP, shellDamage;
+		int maxHP, shellDamage, ammoCapacity;
 
 		TiXmlElement* rootElement = doc.RootElement();
 		if (rootElement)
@@ -62,8 +62,9 @@ CTankTemplate* XMLReader::LoadTankTemplate(const string& fileName)
 
 			maxHP =			atoi(rootElement->Attribute("MaxHP"));
 			shellDamage =	atoi(rootElement->Attribute("ShellDamage"));
+			ammoCapacity =	atoi(rootElement->Attribute("AmmoCapacity"));
 		
-			return EntityManager.CreateTankTemplate(type, name, mesh, maxSpeed, acceleration, turnSpeed, turretturnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius);
+			return EntityManager.CreateTankTemplate(type, name, mesh, maxSpeed, acceleration, turnSpeed, turretturnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius, ammoCapacity);
 		}	
 	}
 	return nullptr;

@@ -16,36 +16,30 @@ using namespace std;
 namespace gen
 {
 
-//**** No need for a template class for a shell - there are no generic features for shells
+//**** No need for a template class for ammo - there are no generic features for ammo
 //**** other than their mesh so they can use the base class
 
 /*-----------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------
-	Shell Entity Class
+	Ammo Entity Class
 -------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------*/
 
-// A shell entity inherits the ID/positioning/rendering support of the base entity class
-// and adds instance and state data. It overrides the update function to perform the shell
+// An ammo entity inherits the ID/positioning/rendering support of the base entity class
+// and adds instance and state data. It overrides the update function to perform the ammo
 // entity behaviour
-// The shell code contains no behaviour and must be rewritten as one of the assignment
-// requirements. You may wish to alter other parts of the class to suit your game additions
-// E.g extra member variables, constructor parameters, getters etc.
-class CShellEntity : public CEntity
+class CAmmoEntity : public CEntity
 {
 /////////////////////////////////////
 //	Constructors/Destructors
 public:
-	// Shell constructor intialises shell-specific data and passes its parameters to the base
+	// Ammo constructor intialises ammo-specific data and passes its parameters to the base
 	// class constructor
-	CShellEntity
+	CAmmoEntity
 	(
 		CEntityTemplate* entityTemplate,
 		TEntityUID       UID,
-		TEntityUID		 FiredBy,
-		const TFloat32&	 speed,
-		const TFloat32&	 lifeTime,
-		const TInt32&	 damage,
+		const TInt32&	 refillSize,
 		const string&    name = "",
 		const CVector3&  position = CVector3::kOrigin, 
 		const CVector3&  rotation = CVector3( 0.0f, 0.0f, 0.0f ),
@@ -62,7 +56,7 @@ public:
 	/////////////////////////////////////
 	// Update
 
-	// Update the shell - performs simple shell behaviour
+	// Update the ammo - performs simple ammo behaviour
 	// Return false if the entity is to be destroyed
 	// Keep as a virtual function in case of further derivation
 	virtual bool Update( TFloat32 updateTime );
@@ -73,17 +67,10 @@ public:
 private:
 
 	/////////////////////////////////////
-	// State Checks
-
-	bool IsAlive();	
-
-	/////////////////////////////////////
 	// Data
-
-	TEntityUID m_FiredBy;	//The the entity that fired this shell, prevents shooting self (during first frames)
-	TFloat32 m_LifeTime;	//How long the shell will live (assuming it doesnt die for some other reason)
-	TFloat32 m_Speed;		//Current speed (in facing direction)
-	TInt32 m_Damage;		//Amount of damage dealt by this shell
+	TInt32 m_RefillSize;	//The amount of ammo to refill
+	float m_Height;
+	float m_SinWave;
 };
 
 

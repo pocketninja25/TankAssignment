@@ -71,11 +71,11 @@ CEntityTemplate* CEntityManager::CreateTemplate(const string & file)
 CTankTemplate* CEntityManager::CreateTankTemplate(const string& type, const string& name,
 	const string& mesh, float maxSpeed,
 	float acceleration, float turnSpeed,
-	float turretTurnSpeed, int maxHP, int shellDamage, float shellSpeed, float shellLifetime, float radius)
+	float turretTurnSpeed, int maxHP, int shellDamage, float shellSpeed, float shellLifetime, float radius, int ammoCapacity)
 {
 	// Create new tank template
 	CTankTemplate* newTemplate = new CTankTemplate(type, name, mesh, maxSpeed, acceleration,
-		turnSpeed, turretTurnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius);
+		turnSpeed, turretTurnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius, ammoCapacity);
 
 	// Add the template name / template pointer pair to the map
 	m_Templates[name] = newTemplate;
@@ -200,6 +200,7 @@ TEntityUID CEntityManager::CreateShell
 	const TEntityUID&	firedBy,
 	const TFloat32&		speed,
 	const TFloat32&		lifeTime,
+	const TInt32&		damage,
 	const string&		name /*= ""*/,
 	const CVector3&		position /*= CVector3::kOrigin*/,
 	const CVector3&		rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
@@ -211,7 +212,7 @@ TEntityUID CEntityManager::CreateShell
 
 	// Create new entity with next UID
 	CEntity* newEntity = new CShellEntity(entityTemplate, m_NextUID, firedBy, 
-		speed, lifeTime, name, position, rotation, scale);
+		speed, lifeTime, damage, name, position, rotation, scale);
 
 	// Get vector index for new entity and add it to vector
 	TUInt32 entityIndex = static_cast<int>(m_Entities.size());
@@ -223,6 +224,28 @@ TEntityUID CEntityManager::CreateShell
 	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
 
 							 // Return UID of new entity then increase it ready for next entity
+	return m_NextUID++;
+}
+
+TEntityUID CEntityManager::CreateAmmo(const string & templateName, const TInt32 & refillSize, const string & name, const CVector3 & position, const CVector3 & rotation, const CVector3 & scale)
+{
+	// Get template associated with the template name
+	CEntityTemplate* entityTemplate = GetTemplate(templateName);
+
+	// Create new entity with next UID
+	CEntity* newEntity = new CAmmoEntity(entityTemplate, m_NextUID, refillSize,
+		name, position, rotation, scale);
+
+	// Get vector index for new entity and add it to vector
+	TUInt32 entityIndex = static_cast<int>(m_Entities.size());
+	m_Entities.push_back(newEntity);
+
+	// Add mapping from UID to entity index into hash map
+	m_EntityUIDMap->SetKeyValue(m_NextUID, entityIndex);
+
+	m_Enumeration.clear(); // Cancel any entity enumeration (entity list has changed)
+
+						   // Return UID of new entity then increase it ready for next entity
 	return m_NextUID++;
 }
 

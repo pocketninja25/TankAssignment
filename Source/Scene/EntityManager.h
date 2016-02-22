@@ -15,6 +15,7 @@ using namespace std;
 #include "Entity.h"
 #include "TankEntity.h"
 #include "ShellEntity.h"
+#include "AmmoEntity.h"
 #include "Camera.h"
 #include "XMLReader.h"
 
@@ -64,7 +65,8 @@ public:
 	                                                   const string& mesh, float maxSpeed,
 	                                                   float acceleration, float turnSpeed,
 	                                                   float turretTurnSpeed, int maxHP, 
-													   int shellDamage, float shellSpeed, float shellLifetime, float radius );
+													   int shellDamage, float shellSpeed, float shellLifetime,
+													   float radius, int ammoCapacity );
 	
 	CTankTemplate* CEntityManager::CreateTankTemplate(const string& file);
 
@@ -110,12 +112,22 @@ public:
 		const TEntityUID&	firedBy,
 		const TFloat32&		speed,
 		const TFloat32&		lifeTime,
+		const TInt32&		damage,
 		const string&		name = "",
 		const CVector3&		position = CVector3::kOrigin,
 		const CVector3&		rotation = CVector3(0.0f, 0.0f, 0.0f),
 		const CVector3&		scale = CVector3(1.0f, 1.0f, 1.0f)
 	);
 
+	TEntityUID CreateAmmo
+	(
+		const string&		templateName,
+		const TInt32&		refillSize,
+		const string&		name = "",
+		const CVector3&		position = CVector3::kOrigin,
+		const CVector3&		rotation = CVector3(0.0f, 0.0f, 0.0f),
+		const CVector3&		scale = CVector3(1.0f, 1.0f, 1.0f)
+		);
 
 	// Destroy the given entity - returns true if the entity existed and was destroyed
 	bool DestroyEntity( TEntityUID UID );

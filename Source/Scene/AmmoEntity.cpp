@@ -4,7 +4,7 @@
 	Shell entity class
 ********************************************/
 
-#include "ShellEntity.h"
+#include "AmmoEntity.h"
 #include "TankEntity.h"
 #include "EntityManager.h"
 #include "Messenger.h"
@@ -32,43 +32,33 @@ extern TEntityUID GetTankUID( int team );
 -------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------*/
 
-// Shell constructor intialises shell-specific data and passes its parameters to the base
+// Ammo constructor intialises ammo-specific data and passes its parameters to the base
 // class constructor
-CShellEntity::CShellEntity
+CAmmoEntity::CAmmoEntity
 (
+
 	CEntityTemplate* entityTemplate,
 	TEntityUID       UID,
-	TEntityUID		 firedBy,
-	const TFloat32&	 speed,
-	const TFloat32&	 lifeTime,
-	const TInt32&	 damage,
-	const string&    name /*=""*/,
-	const CVector3&  position /*= CVector3::kOrigin*/, 
-	const CVector3&  rotation /*= CVector3( 0.0f, 0.0f, 0.0f )*/,
-	const CVector3&  scale /*= CVector3( 1.0f, 1.0f, 1.0f )*/
+	const TInt32&	 refillSize,
+	const string&    name	/*= ""*/,
+	const CVector3&  position /*= CVector3::kOrigin*/,
+	const CVector3&  rotation /*= CVector3(0.0f, 0.0f, 0.0f)*/,
+	const CVector3&  scale /*= CVector3(1.0f, 1.0f, 1.0f)*/
 ) : CEntity( entityTemplate, UID, name, position, rotation, scale )
 {
-	m_Speed = speed;
-	m_LifeTime = lifeTime;
-	m_FiredBy = firedBy;
-	m_Damage = damage;
+	m_RefillSize = refillSize;
+	m_Height = position.y;
+	m_SinWave = 0.0f;
 }
 
 
-// Update the shell - controls its behaviour. The shell code is empty, it needs to be written as
-
 // Return false if the entity is to be destroyed
-bool CShellEntity::Update( TFloat32 updateTime )
+bool CAmmoEntity::Update(TFloat32 updateTime)
 {
-	m_LifeTime -= updateTime;
-
-	if (!IsAlive())
-	{
-		return false;
-	}
-
-	// Move along local Z axis scaled by update time
-	Matrix().MoveLocalZ( m_Speed * updateTime );
+	m_SinWave += updateTime;
+	Position().y = m_Height + sin(m_SinWave);
+	// Rotate on the spot and bob up and down (for effect)
+	Matrix().RotateY((kfPi / 3) * updateTime);
 
 	//TODO: Collision detection
 	TInt32 enumID;
@@ -76,35 +66,26 @@ bool CShellEntity::Update( TFloat32 updateTime )
 	CTankEntity* theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity(enumID));
 	while (theTank)
 	{
-		if(theTank->GetUID() != m_FiredBy)
+		float radius = Template()->Mesh()->BoundingRadius();
+		if (Length(Position() - theTank->Position()) < (theTank->GetRadius() + radius))	//If distance between the ammo and the tank is less than the tank's radius
 		{
-
-			if (Length(Position() - theTank->Position()) < theTank->GetRadius())	//If distance between the shell and the tank is less than the tank's radius
-			{
-				EntityManager.EndEnumEntities(enumID);
-				// Hit the tank, send the hit message and destroy the bullet
-				SMessage theHitMessage;
-				theHitMessage.from = GetUID();
-				theHitMessage.type = Msg_Hit;
-				theHitMessage.intParam = m_Damage;
-				Messenger.SendMessageA(theTank->GetUID(), theHitMessage);
-				return false;
-			}
-
+			EntityManager.EndEnumEntities(enumID);
+			// Hit the tank, send the hit message and destroy the bullet
+			SMessage theCollectMessage;
+			theCollectMessage.from = GetUID();
+			theCollectMessage.type = Msg_Ammo;
+			theCollectMessage.intParam = m_RefillSize;
+			Messenger.SendMessageA(theTank->GetUID(), theCollectMessage);
+			return false;
 		}
+
+
 		theTank = dynamic_cast<CTankEntity*> (EntityManager.EnumEntity(enumID));
 	}
-	
+
 	EntityManager.EndEnumEntities(enumID);
 
-	return true; // Placeholder
-}
-
-
-
-bool CShellEntity::IsAlive()
-{
-	return (m_LifeTime > 0);
+	return true;
 }
 
 

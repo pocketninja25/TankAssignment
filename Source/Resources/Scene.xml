@@ -2,14 +2,15 @@
 
 <Scene>
   <Templates>
-      <TankTemplate file="OberonMKIITemplate.xml"/>
-      <TankTemplate file="RogueScoutTemplate.xml"/>
-      <TankTemplate file="TigerTankTemplate.xml"/>
-      <EntityTemplate file="BuildingTemplate.xml"/>
-      <EntityTemplate file="FloorTemplate.xml"/>
-      <EntityTemplate file="SkyboxTemplate.xml"/>
-      <EntityTemplate file="TreeTemplate.xml"/>
-      <EntityTemplate file="BulletTemplate.xml"/>
+    <TankTemplate file="OberonMKIITemplate.xml"/>
+    <TankTemplate file="RogueScoutTemplate.xml"/>
+    <TankTemplate file="TigerTankTemplate.xml"/>
+    <EntityTemplate file="BuildingTemplate.xml"/>
+    <EntityTemplate file="FloorTemplate.xml"/>
+    <EntityTemplate file="SkyboxTemplate.xml"/>
+    <EntityTemplate file="TreeTemplate.xml"/>
+    <EntityTemplate file="BulletTemplate.xml"/>
+    <EntityTemplate file="AmmoTemplate.xml"/>
   </Templates>
 
   <Entities>
@@ -85,21 +86,20 @@
     </Tank>
     
     <Tank templateName="Tiger Tank" team="3" name="C-1" patrolRoute="PatrolRoute1.xml">
-       <Position  x="-121" y="3.142" z="263"/>
+       <Position  x="-121" y="0.5" z="263"/>
     </Tank>
     <Tank templateName="Tiger Tank" team="3" name="C-2" patrolRoute="PatrolRoute1.xml">
-      <Position  x="-73" y="3.142" z="211"/>
+      <Position  x="-73" y="0.5" z="211"/>
     </Tank>
     <Tank templateName="Tiger Tank" team="3" name="C-3" patrolRoute="PatrolRoute1.xml">
-      <Position  x="-101" y="3.142" z="150"/>
+      <Position  x="-101" y="0.5" z="150"/>
     </Tank>
     <Tank templateName="Tiger Tank" team="3" name="C-4" patrolRoute="PatrolRoute1.xml">
-      <Position  x="-57" y="3.142" z="68"/>
+      <Position  x="-57" y="0.5" z="68"/>
     </Tank>
     <Tank templateName="Tiger Tank" team="3" name="C-5" patrolRoute="PatrolRoute1.xml">
-      <Position  x="-78" y="3.142" z="16"/>
+      <Position  x="-78" y="0.5" z="16"/>
     </Tank>
   </Tanks>
-  
   
 </Scene>

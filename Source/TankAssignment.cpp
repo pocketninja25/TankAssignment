@@ -83,6 +83,11 @@ float SumUpdateTimes = 0.0f;
 int NumUpdateTimes = 0;
 float AverageUpdateTime = -1.0f; // Invalid value at first
 
+bool AmmoCountdownActive = false;
+const float MaxAmmoTime = 20.0f;
+const float MinAmmoTime = 10.0f;
+float ammoCountdown = MaxAmmoTime;
+
 // Level of data shown
 int DisplayExtendedInfo = true;
 
@@ -265,6 +270,9 @@ void RenderSceneText( float updateTime )
 	RenderText(outText.str(), 0, 25, 1.0f, 1.0f, 0.0f);
 	outText.str("");
 
+	outText << "Time until ammo drop: " << ammoCountdown;
+	RenderText(outText.str(), 2, 52, 0.0f, 0.0f, 0.0f);
+	RenderText(outText.str(), 0, 50, 1.0f, 1.0f, 0.0f);
 
 }
 
@@ -314,6 +322,12 @@ void RenderEntityText(CEntityManager& EntityManager)
 				RenderText(stringOut.str(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
 				stringOut.str("");	//Clear the stringstream
 
+				y += 10;
+				stringOut << "Ammo: " << theTank->GetAmmo() << "/" << theTank->GetAmmoCapacity();
+				RenderText(stringOut.str(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
+				RenderText(stringOut.str(), x - 2, y - 2, theFontColour.x, theFontColour.y, theFontColour.z, true);
+				stringOut.str("");	//Clear the stringstream
+
 				y += 10;	//Move the y pixel coordinate 10 pixels down so the Shells fired information appears underneath the HP info
 				stringOut << "Fired: " << theTank->GetNoShellsFired();
 				RenderText(stringOut.str(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
@@ -344,6 +358,24 @@ void RenderEntityText(CEntityManager& EntityManager)
 	}
 
 	EntityManager.EndEnumEntities(enumID);
+
+	EntityManager.BeginEnumEntities(enumID, name, "AmmoCrate");
+	theEntity = EntityManager.EnumEntity(enumID);
+	while (theEntity)
+	{
+		CVector3 thePosition = theEntity->Position();
+		TInt32 x, y;
+		if (SelectedCamera->PixelFromWorldPt(thePosition, ViewportWidth, ViewportHeight, &x, &y))
+		{
+			y += 20;	//Move the y pixel coordinate 20 pixels down so the Name information appears underneath the ammo
+
+			//Render the entity's name (with dropped shadow)
+			RenderText(theEntity->GetName(), x, y, dropShadowColour.x, dropShadowColour.y, dropShadowColour.z, true);
+			RenderText(theEntity->GetName(), x - 2, y - 2, 1.0f, 0.0f, 1.0f, true);
+		}
+		theEntity = EntityManager.EnumEntity(enumID);
+	}
+	EntityManager.EndEnumEntities(enumID);
 }
 
 // Update the scene between rendering
@@ -351,6 +383,25 @@ void UpdateScene( float updateTime )
 {
 	// Call all entity update functions
 	EntityManager.UpdateAllEntities( updateTime );
+
+	if (AmmoCountdownActive)
+	{
+		ammoCountdown -= updateTime;
+		if (ammoCountdown < 0)
+		{
+			ammoCountdown = Random(MinAmmoTime, MaxAmmoTime);
+			EntityManager.CreateAmmo("AmmoCrate", 5, "Ammo", CVector3(Random(-247.0f, 130.0f), 1.1f, Random(-95, 390)));
+		}
+
+	}
+
+	if (KeyHit(Key_Return))
+	{
+		ammoCountdown = Random(MinAmmoTime, MaxAmmoTime);
+		CVector3 mousePos = SelectedCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+		mousePos.y = 1.1f;
+		EntityManager.CreateAmmo("AmmoCrate", 5, "Ammo", mousePos);
+	}
 
 	// Enable/Disable extended tank info
 	if (KeyHit(Key_0))
@@ -360,6 +411,7 @@ void UpdateScene( float updateTime )
 	// Start all tanks
 	if (KeyHit(Key_1))
 	{
+		AmmoCountdownActive = true;
 		//Send a start message to all Tank Entities		
 		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
 		SMessage theMessage;
@@ -381,6 +433,7 @@ void UpdateScene( float updateTime )
 	// Stop all tanks
 	if (KeyHit(Key_2))
 	{
+		AmmoCountdownActive = false;
 		//Send a stop message to all Tank Entities		
 		//TODO: Revisit this descision, selecting to message only tanks, if other entities are start/stoppable might need to do for all entities
 		SMessage theMessage;
@@ -461,7 +514,7 @@ void UpdateScene( float updateTime )
 			SMessage theMoveMessage;
 			theMoveMessage.from = -1;
 			theMoveMessage.type = Msg_Move;
-			theMoveMessage.position = targetLocation;
+			theMoveMessage.vec3Param = targetLocation;
 
 			Messenger.SendMessageA(SelectedTankUID, theMoveMessage);
 		}
@@ -474,13 +527,11 @@ void UpdateScene( float updateTime )
 		CEntity* tank = EntityManager.GetEntity(SelectedTankUID);
 		if (tank)	//Test if the tank still exists
 		{
-			CMatrix4x4 tankMatrix = tank->Matrix();
-			ChaseCamera->Matrix() = tankMatrix;
+			CVector3 movement = CVector3(0.0f, 4.0f, 0.0f);
+			
+			ChaseCamera->Position() = tank->Position();
+			ChaseCamera->Matrix().Move(movement);
 
-			CVector3 movement = CVector3(0.0f, 4.0f, -7.0f);
-
-			ChaseCamera->Matrix().MoveLocal(movement);
-			ChaseCamera->Matrix().RotateLocalX(ToRadians(15.0f));
 		}
 		else
 		{
@@ -502,9 +553,9 @@ void UpdateScene( float updateTime )
 					CMatrix4x4 tankMatrix = tank->Matrix();
 					ChaseCamera->Matrix() = tankMatrix;
 
-					CVector3 movement = CVector3(0.0f, 4.0f, -7.0f);
+					CVector3 movement = CVector3(0.0f, 4.0f, 0.0f);
 
-					ChaseCamera->Matrix().MoveLocal(movement);
+					//ChaseCamera->Matrix().MoveLocal(movement);
 					ChaseCamera->Matrix().RotateLocalX(ToRadians(15.0f));
 
 					//Switch selected camera to the chase camera

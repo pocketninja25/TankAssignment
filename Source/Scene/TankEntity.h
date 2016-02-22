@@ -36,7 +36,7 @@ public:
 		const string& type, const string& name, const string& meshFilename,
 		TFloat32 maxSpeed, TFloat32 acceleration, TFloat32 turnSpeed,
 		TFloat32 turretTurnSpeed, TUInt32 maxHP, 
-		TUInt32 shellDamage, TFloat32 shellSpeed, TFloat32 shellLifeTime, TFloat32 radius
+		TInt32 shellDamage, TFloat32 shellSpeed, TFloat32 shellLifeTime, TFloat32 radius, TInt32 ammoCapacity
 	) : CEntityTemplate( type, name, meshFilename )
 	{
 		// Set tank template values
@@ -50,6 +50,7 @@ public:
 		m_ShellLifeTime = shellLifeTime;
 		m_Radius = radius;
 		m_ShellDistance = m_ShellSpeed * m_ShellLifeTime;
+		m_AmmoCapacity = ammoCapacity;
 	}
 
 	// No destructor needed (base class one will do)
@@ -112,6 +113,11 @@ public:
 		return m_ShellDistance;
 	}
 
+	TInt32 GetAmmoCapacity()
+	{
+		return m_AmmoCapacity;
+	}
+
 
 /////////////////////////////////////
 //	Private interface
@@ -129,6 +135,7 @@ private:
 	TFloat32 m_ShellLifeTime;	// Length of time a shell will exist (without hitting)
 	TFloat32 m_Radius;			// Radius of the tank
 	TFloat32 m_ShellDistance;	// How far the tank can shoot (dont bother shooting if too far)
+	TInt32	 m_AmmoCapacity;	// How much ammo the tank can hold at once
 };
 
 
@@ -194,6 +201,16 @@ public:
 		return m_ShellsFired;
 	}
 
+	TInt32 GetAmmo()
+	{
+		return m_Ammo;
+	}
+
+	TInt32 GetAmmoCapacity()
+	{
+		return m_TankTemplate->GetAmmoCapacity();
+	}
+
 	TFloat32 GetRadius()
 	{
 		return m_TankTemplate->GetRadius();
@@ -222,6 +239,7 @@ private:
 		State_Patrol,
 		State_Aim,
 		State_Evade,
+		State_FindAmmo,
 		State_Size	//State_Size is not a real state, but used as a constant for the number of actual states
 	};
 
@@ -238,6 +256,17 @@ private:
 	TFloat32 m_Speed;		// Current speed (in facing direction)
 	TInt32   m_HP;			// Current hit points for the tank
 	TInt32	 m_ShellsFired;	// Number of shells this tank has fired
+	TInt32	 m_Ammo;		// Amount of ammo left
+
+	/////////////////////////
+	// Movement Flags
+	bool AccelerateFlag;
+	bool DecelerateFlag;
+	bool TurnLeftFlag;
+	bool TurnRightFlag;
+
+	bool RotateTurretLeftFlag;
+	bool RotateTurretRightFlag;
 
 	// Tank state
 	EState   m_State; // Current state
@@ -253,8 +282,15 @@ private:
 	// Evade state data
 	CVector3 m_EvasionTarget;
 
+	// Find ammo state data
+	CVector3 m_AmmoTarget;
+
 	/////////////////////////////////////
 	// State Modifications - Private
+
+	vector<CVector3>::iterator FindNearestWaypoint();
+	
+	void DetermineMovementFlags(CVector3 vectorToTarget);
 
 	// Move from one state to another - ensure state required entry/exit functionality is performed
 	void MoveToState(EState newState, CVector3* position = nullptr);	//Pass an optional parameter which is interpreted based on the state transitioning to

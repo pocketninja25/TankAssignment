@@ -129,6 +129,9 @@
       <Filter>TinyXML</Filter>
     </ClCompile>
     <ClCompile Include="Source\XML\XMLReader.cpp" />
+    <ClCompile Include="Source\Scene\AmmoEntity.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\Camera.h">
@@ -232,6 +235,9 @@
       <Filter>TinyXML</Filter>
     </ClInclude>
     <ClInclude Include="Source\XML\XMLReader.h" />
+    <ClInclude Include="Source\Scene\AmmoEntity.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Render\TankAssignment.fx">
@@ -272,6 +278,9 @@
     </Xml>
     <Xml Include="Source\Resources\TigerTankTemplate.xml">
       <Filter>XML Files\Templates\Tanks</Filter>
+    </Xml>
+    <Xml Include="Source\Resources\AmmoTemplate.xml">
+      <Filter>XML Files\Templates</Filter>
     </Xml>
   </ItemGroup>
 </Project>
