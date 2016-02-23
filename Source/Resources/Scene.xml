@@ -11,6 +11,7 @@
     <EntityTemplate file="TreeTemplate.xml"/>
     <EntityTemplate file="BulletTemplate.xml"/>
     <EntityTemplate file="AmmoTemplate.xml"/>
+    <EntityTemplate file="TombTemplate.xml"/>
   </Templates>
 
   <Entities>
