@@ -264,15 +264,18 @@ void RenderSceneText( float updateTime )
 	}
 
 	CVector3 mouseWorldPos = SelectedCamera->WorldPtFromPixel(MouseX, MouseY, ViewportWidth, ViewportHeight);
+	outText << "Mouse Position" << endl;
 	outText << "X: " << mouseWorldPos.x << endl << "Z: " << mouseWorldPos.z;
 	//outText << "X: " << MouseX << endl << "Z: " << MouseY;	
-	RenderText(outText.str(), 2, 27, 0.0f, 0.0f, 0.0f);
-	RenderText(outText.str(), 0, 25, 1.0f, 1.0f, 0.0f);
+	RenderText(outText.str(), 2, 32, 0.0f, 0.0f, 0.0f);
+	RenderText(outText.str(), 0, 30, 1.0f, 1.0f, 0.0f);
 	outText.str("");
 
 	outText << "Time until ammo drop: " << ammoCountdown;
-	RenderText(outText.str(), 2, 52, 0.0f, 0.0f, 0.0f);
-	RenderText(outText.str(), 0, 50, 1.0f, 1.0f, 0.0f);
+	RenderText(outText.str(), 2, 72, 0.0f, 0.0f, 0.0f);
+	RenderText(outText.str(), 0, 70, 1.0f, 1.0f, 0.0f);
+	outText.str("");
+
 
 }
 
@@ -455,8 +458,13 @@ void UpdateScene( float updateTime )
 
 	// Set camera speeds
 	// Key F1 used for full screen toggle
+	if (KeyHit(Key_F1))
+	{
+		
+	}
 	if (KeyHit(Key_F2)) CameraMoveSpeed = 5.0f;
 	if (KeyHit(Key_F3)) CameraMoveSpeed = 40.0f;
+
 
 	// Select a tank	
 	if (KeyHit(Mouse_LButton))

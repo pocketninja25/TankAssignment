@@ -37,6 +37,19 @@
 namespace gen
 {
 
+	float floatClamp(float min, float max, float value)
+	{
+		if (value < min)
+		{
+			return min;
+		}
+		if (value > max)
+		{
+			return max;
+		}
+		return value;
+	}
+
 // Reference to entity manager from TankAssignment.cpp, allows look up of entities by name, UID etc.
 // Can then access other entity's data. See the CEntityManager.h file for functions. Example:
 //    CVector3 targetPos = EntityManager.GetEntity( targetUID )->GetMatrix().Position();
@@ -156,14 +169,17 @@ bool CTankEntity::Update( TFloat32 updateTime )
 	
 	/////////////////////////
 	// Set Movement Flags
-	AccelerateFlag = false;
-	DecelerateFlag = false;
-	TurnLeftFlag = false;
-	TurnRightFlag = false;
+	m_AccelerateFlag = false;
+	m_DecelerateFlag = false;
+	m_TurnLeftFlag = false;
+	m_TurnRightFlag = false;
+	m_TurnLeftAmount = m_TankTemplate->GetTurnSpeed() * updateTime;
+	m_TurnRightAmount = m_TankTemplate->GetTurnSpeed() * updateTime;
 
-	RotateTurretLeftFlag = false;
-	RotateTurretRightFlag = false;
-
+	m_RotateTurretLeftFlag = false;
+	m_RotateTurretRightFlag = false;
+	m_RotateTurretLeftAmount = m_TankTemplate->GetTurretTurnSpeed() * updateTime;
+	m_RotateTurretRightAmount = m_TankTemplate->GetTurretTurnSpeed() * updateTime;
 
 	////////////////////////////////
 	// Tank behaviour - State based
@@ -199,11 +215,11 @@ bool CTankEntity::Update( TFloat32 updateTime )
 
 		// Determine whether to turn (and in which direction)
 		CVector3 vectorToWaypoint = Normalise(*m_CurrentWaypoint - Position()); //Make a unit vector for dot product
-		DetermineMovementFlags(vectorToWaypoint);
+		DetermineMovementFlags(vectorToWaypoint, updateTime);
 
 
 		// Rotate the turret
-		RotateTurretRightFlag = true;
+		m_RotateTurretRightFlag = true;
 		
 		TEntityUID enemyFacing;
 		
@@ -223,7 +239,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		//When timer = 0, create a shell (fire turret) - go to evade state
 
 		//Stop the tank moving
-		DecelerateFlag = true;
+		m_DecelerateFlag = true;
 
 		////////////////////////////////////////////////////////
 		// Aim toward the target tank
@@ -231,17 +247,40 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		if (targetTank)	//Aim only if the target still exists
 		{
 
-			CVector3 rightVector = CVector3((Matrix() * Matrix(2)).GetRow(0));	//Extract right vector from this turret
+			CVector3 rightVector = CVector3((Matrix(2) * Matrix()).GetRow(0));	//Extract right vector from this turret
 			CVector3 vecToTarget = Normalise(targetTank->Position() - Matrix().TransformPoint(Position(2))); //Get vector from turret to target
 		
 			// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right		
-			if (Dot(rightVector, vecToTarget) > 0)	//< 90° // Turn right (positive)
+			
+			if (Dot(rightVector, vecToTarget)> 0)	//< 90° // Turn right (positive)
 			{
-				RotateTurretRightFlag = true;
+				CVector3 facing = Normalise(CVector3((Matrix(2) * Matrix()).GetRow(2)));	//Extract right vector from this turret
+				
+				float angle = acosf(floatClamp(-1.0f, 1.0f, Dot(facing, vecToTarget)));
+				if (angle > m_TankTemplate->GetTurretTurnSpeed() * updateTime)
+				{
+					m_RotateTurretRightAmount = m_TankTemplate->GetTurretTurnSpeed() * updateTime;
+				}
+				else
+				{
+					m_RotateTurretRightAmount = angle * updateTime;
+				}
+				m_RotateTurretRightFlag = true;
 			}
 			else 	//> 90° //Turn left (negative)	//This also deals with facing the directly wrong direction
 			{
-				RotateTurretLeftFlag = true;
+				CVector3 facing = Normalise(CVector3((Matrix(2) * Matrix()).GetRow(2)));	//Extract right vector from this turret
+				
+				float angle = acosf(floatClamp(-1.0f, 1.0f, Dot(facing, vecToTarget)));
+				if (angle > m_TankTemplate->GetTurretTurnSpeed() * updateTime)
+				{
+					m_RotateTurretLeftAmount = m_TankTemplate->GetTurretTurnSpeed() * updateTime;
+				}
+				else
+				{
+					m_RotateTurretLeftAmount = angle * updateTime;
+				}
+				m_RotateTurretLeftFlag = true;
 			}
 		}
 		else
@@ -272,7 +311,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 
 		// Determine whether to turn (and in which direction)
 		CVector3 vectorToTarget = Normalise(m_EvasionTarget - Position()); //Make a unit vector for dot product
-		DetermineMovementFlags(vectorToTarget);
+		DetermineMovementFlags(vectorToTarget, updateTime);
 
 		////////////////////////
 		// Turret control
@@ -285,11 +324,32 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		// If angle between vectors is > 90° then tank is pointing in the forward half
 		if (Dot(rightVector, forwardVector) > 0)	//< 90° // Turn right (positive)
 		{
-			RotateTurretRightFlag = true;
+			CVector3 facing = Normalise(CVector3((Matrix(2) * Matrix()).GetRow(2)));	//Extract right vector from this turret
+			
+			float angle = acosf(floatClamp(-1.0f, 1.0f, Dot(facing, forwardVector)));
+			if (angle > m_TankTemplate->GetTurretTurnSpeed() * updateTime)
+			{
+				m_RotateTurretRightAmount = m_TankTemplate->GetTurretTurnSpeed() * updateTime;
+			}
+			else
+			{
+				m_RotateTurretRightAmount = angle * updateTime;
+			}
+			m_RotateTurretRightFlag = true;
 		}
 		else 	//> 90° //Turn left (negative)	//This also deals with facing the directly wrong direction
 		{
-			RotateTurretLeftFlag = true;
+			CVector3 facing = Normalise(CVector3((Matrix(2) * Matrix()).GetRow(2)));	//Extract right vector from this turret
+			float angle = acosf(floatClamp(-1.0f, 1.0f, Dot(facing, forwardVector)));
+			if (angle > m_TankTemplate->GetTurretTurnSpeed() * updateTime)
+			{
+				m_RotateTurretLeftAmount = m_TankTemplate->GetTurretTurnSpeed() * updateTime;
+			}
+			else
+			{
+				m_RotateTurretLeftAmount = angle * updateTime;
+			}
+			m_RotateTurretLeftFlag = true;
 		}
 
 		
@@ -354,7 +414,7 @@ bool CTankEntity::Update( TFloat32 updateTime )
 		// Determine whether to turn (and in which direction)
 		CVector3 vectorToTarget = Normalise(m_AmmoTarget - Position()); //Make a unit vector for dot product
 
-		DetermineMovementFlags(vectorToTarget);
+		DetermineMovementFlags(vectorToTarget, updateTime);
 
 	}
 		break;
@@ -368,23 +428,23 @@ bool CTankEntity::Update( TFloat32 updateTime )
 	//Perform movement of the tank body (Mesh[0]) based on flags
 
 	//Determine acceleration/deceleration for this timestep (Dont not act if both flags are set (allows for alternate deceleration speed later on))
-	if (AccelerateFlag)
+	if (m_AccelerateFlag)
 	{
 		m_Speed += m_TankTemplate->GetAcceleration() * updateTime;
 	}
-	if (DecelerateFlag)
+	if (m_DecelerateFlag)
 	{
 		m_Speed -= m_TankTemplate->GetAcceleration() * updateTime;
 	}
 	
 	//Determine turning for this timestep
-	if (TurnRightFlag)
+	if (m_TurnRightFlag)
 	{
-		Matrix().RotateLocalY(m_TankTemplate->GetTurnSpeed() * updateTime);
+		Matrix().RotateLocalY(m_TurnRightAmount);
 	}
-	if (TurnLeftFlag)
+	if (m_TurnLeftFlag)
 	{
-		Matrix().RotateLocalY(-m_TankTemplate->GetTurnSpeed() * updateTime);
+		Matrix().RotateLocalY(-m_TurnLeftAmount);
 	}
 	
 	//Limit the speed if it has gone too high this timestep
@@ -405,15 +465,15 @@ bool CTankEntity::Update( TFloat32 updateTime )
 
 	/////////////////////////////
 	// Perform Turret Movement
-	if (RotateTurretRightFlag)
+	if (m_RotateTurretRightFlag)
 	{
-		Matrix(2).RotateLocalY(m_TankTemplate->GetTurretTurnSpeed() * updateTime);
+		Matrix(2).RotateLocalY(m_RotateTurretRightAmount);
 	}
-	if (RotateTurretLeftFlag)
+	if (m_RotateTurretLeftFlag)
 	{
-		Matrix(2).RotateLocalY(-m_TankTemplate->GetTurretTurnSpeed() * updateTime);
+		Matrix(2).RotateLocalY(-m_RotateTurretLeftAmount);
 	}
-		
+
 	return IsAlive(); // Return the 'alive' pseudostate - true if alive (dont destroy this entity), false if dead (destroy this entity)
 }
 
@@ -431,18 +491,40 @@ vector<CVector3>::iterator CTankEntity::FindNearestWaypoint()
 	return currentWaypoint;
 }
 
-void CTankEntity::DetermineMovementFlags(CVector3 vectorToTarget)
+void CTankEntity::DetermineMovementFlags(CVector3 vectorToTarget, float updateTime)
 {
+	vectorToTarget.Normalise();
 	CVector3 rightVector = CVector3(Matrix().GetRow(0));	//Extract right vector from tank
+	rightVector.Normalise();
 
 	// If angle between vectors is > 90° then need to turn left, if = 90° dont turn, if < 90° turn right
 	if (Dot(rightVector, vectorToTarget) > 0)	//< 90° // Turn right (positive)
 	{
-		TurnRightFlag = true;
+		CVector3 facing = Normalise(CVector3((Matrix(2) * Matrix()).GetRow(2)));	//Extract facing vector from this turret
+		float angle = acosf(floatClamp(-1.0f, 1.0f, Dot(facing, vectorToTarget)));
+		if (angle > m_TankTemplate->GetTurnSpeed() * updateTime)
+		{
+			m_TurnRightAmount = m_TankTemplate->GetTurnSpeed() * updateTime;
+		}
+		else
+		{
+			m_TurnRightAmount = angle * updateTime;
+		}
+		m_TurnRightFlag = true;
 	}
 	else 	//> 90° //Turn left (negative)	//This also deals with facing the directly wrong direction
 	{
-		TurnLeftFlag = true;
+		CVector3 facing = Normalise(CVector3((Matrix(2) * Matrix()).GetRow(2)));	//Extract right vector from this turret
+		float angle = acosf(floatClamp(-1.0f, 1.0f, Dot(facing, vectorToTarget)));
+		if (angle > m_TankTemplate->GetTurnSpeed() * updateTime)
+		{
+			m_TurnLeftAmount = m_TankTemplate->GetTurnSpeed() * updateTime;
+		}
+		else
+		{
+			m_TurnLeftAmount = angle * updateTime;
+		}
+		m_TurnLeftFlag = true;
 	}
 
 	// Determine whether to Apply acceleration
@@ -453,11 +535,11 @@ void CTankEntity::DetermineMovementFlags(CVector3 vectorToTarget)
 													// If stopping distance is less than the distance to the target, accelerate, otherwise decelerate
 	if (stoppingDistance < Length(*m_CurrentWaypoint - Position()))
 	{
-		AccelerateFlag = true;
+		m_AccelerateFlag = true;
 	}
 	else
 	{
-		DecelerateFlag = true;
+		m_DecelerateFlag = true;
 	}
 }
 
@@ -549,7 +631,7 @@ void CTankEntity::FireShell()
 		stringstream nameStream;
 		nameStream << GetName() << "_Shell_" << m_ShellsFired;
 		CVector3 rotation, position, scale;
-		(Matrix() * Matrix(2)).DecomposeAffineEuler(NULL, &rotation, &scale);
+		(Matrix(2) * Matrix()).DecomposeAffineEuler(NULL, &rotation, &scale);
 
 		position = Matrix().TransformPoint(Position(2));
 
@@ -585,7 +667,7 @@ bool CTankEntity::TurretFacingEnemy(TFloat32 angle, TEntityUID& entityFacing)
 			if(Length(theOtherTank->Position() - Matrix().TransformPoint(Position(2))) < m_TankTemplate->GetShotDistance())
 			{
 				CVector3 unitVecToOther = Normalise(theOtherTank->Position() - Matrix().TransformPoint(Position(2)));
-				CVector3 turretFacing = Normalise(CVector3((Matrix(0) * Matrix(2)).GetRow(2)));
+				CVector3 turretFacing = Normalise(CVector3((Matrix(2) * Matrix()).GetRow(2)));
 
 				//determine if the turret points within "angle"° of the enemy tank
 				if (Dot(unitVecToOther, turretFacing) > cosAngle)

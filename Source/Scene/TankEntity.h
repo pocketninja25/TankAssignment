@@ -260,13 +260,17 @@ private:
 
 	/////////////////////////
 	// Movement Flags
-	bool AccelerateFlag;
-	bool DecelerateFlag;
-	bool TurnLeftFlag;
-	bool TurnRightFlag;
+	bool m_AccelerateFlag;
+	bool m_DecelerateFlag;
+	bool m_TurnLeftFlag;
+	float m_TurnLeftAmount;
+	bool m_TurnRightFlag;
+	float m_TurnRightAmount;
 
-	bool RotateTurretLeftFlag;
-	bool RotateTurretRightFlag;
+	bool m_RotateTurretLeftFlag;
+	bool m_RotateTurretRightFlag;
+	float m_RotateTurretLeftAmount;
+	float m_RotateTurretRightAmount;
 
 	// Tank state
 	EState   m_State; // Current state
@@ -290,7 +294,7 @@ private:
 
 	vector<CVector3>::iterator FindNearestWaypoint();
 	
-	void DetermineMovementFlags(CVector3 vectorToTarget);
+	void DetermineMovementFlags(CVector3 vectorToTarget, float updateTime);
 
 	// Move from one state to another - ensure state required entry/exit functionality is performed
 	void MoveToState(EState newState, CVector3* position = nullptr);	//Pass an optional parameter which is interpreted based on the state transitioning to
