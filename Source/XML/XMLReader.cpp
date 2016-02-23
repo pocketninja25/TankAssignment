@@ -16,7 +16,7 @@ CEntityTemplate* XMLReader::LoadEntityTemplate(const string& fileName)
 	if (loadSuccess)
 	{
 		//Define data types to extract
-		string type, name, mesh;
+		string type, name, mesh, replacementTemplate;
 
 		TiXmlElement* rootElement = doc.RootElement();
 
@@ -25,7 +25,9 @@ CEntityTemplate* XMLReader::LoadEntityTemplate(const string& fileName)
 			type = rootElement->Attribute("Type");
 			name = rootElement->Attribute("Name");
 			mesh = rootElement->Attribute("Mesh");
-			return EntityManager.CreateTemplate(type, name, mesh);
+			replacementTemplate = rootElement->Attribute("ReplacementTemplate");
+
+			return EntityManager.CreateTemplate(type, name, mesh, replacementTemplate);
 		}
 	}
 	return nullptr;
@@ -41,7 +43,7 @@ CTankTemplate* XMLReader::LoadTankTemplate(const string& fileName)
 	if (loadSuccess)
 	{
 		//Define data types to extract
-		string type, name, mesh;
+		string type, name, mesh, replacementTemplate;
 		float maxSpeed, acceleration, turnSpeed, turretturnSpeed, shellSpeed, shellLifetime, radius;
 		int maxHP, shellDamage, ammoCapacity;
 
@@ -51,7 +53,8 @@ CTankTemplate* XMLReader::LoadTankTemplate(const string& fileName)
 			type = rootElement->Attribute("Type");
 			name = rootElement->Attribute("Name");
 			mesh = rootElement->Attribute("Mesh");
-			
+			replacementTemplate = rootElement->Attribute("ReplacementTemplate");
+
 			maxSpeed =			static_cast<float>(atof(rootElement->Attribute("MaxSpeed")));
 			acceleration =		static_cast<float>(atof(rootElement->Attribute("Acceleration")));
 			turnSpeed =			static_cast<float>(atof(rootElement->Attribute("TurnSpeed")));
@@ -64,7 +67,7 @@ CTankTemplate* XMLReader::LoadTankTemplate(const string& fileName)
 			shellDamage =	atoi(rootElement->Attribute("ShellDamage"));
 			ammoCapacity =	atoi(rootElement->Attribute("AmmoCapacity"));
 		
-			return EntityManager.CreateTankTemplate(type, name, mesh, maxSpeed, acceleration, turnSpeed, turretturnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius, ammoCapacity);
+			return EntityManager.CreateTankTemplate(type, name, mesh, replacementTemplate, maxSpeed, acceleration, turnSpeed, turretturnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius, ammoCapacity);
 		}	
 	}
 	return nullptr;

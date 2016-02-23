@@ -4,4 +4,6 @@
   Type="Scenery"
   Name="Tree"
   Mesh="Tree1.x"
+  ReplacementTemplate=""
+  
 />

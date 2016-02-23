@@ -4,5 +4,6 @@
   Type="Scenery"
   Name="Building"
   Mesh="Building.x" 
+  ReplacementTemplate=""
 />
 

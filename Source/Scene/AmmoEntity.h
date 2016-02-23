@@ -71,6 +71,8 @@ private:
 	TInt32 m_RefillSize;	//The amount of ammo to refill
 	float m_Height;
 	float m_SinWave;
+	bool landed;
+	float m_FallSpeed;
 };
 
 

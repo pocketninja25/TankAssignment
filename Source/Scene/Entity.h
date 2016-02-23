@@ -42,10 +42,11 @@ class CEntityTemplate
 public:
 	// Base entity template constructor needs template type (e.g. "Car"), name (e.g. "Fiat Panda")
 	// and the associated mesh (e.g. "panda.x")
-	CEntityTemplate( const string& type, const string& name, const string& meshFilename )
+	CEntityTemplate( const string& type, const string& name, const string& meshFilename, const string& replacementTemplate="" )
 	{
 		m_Type = type;
 		m_Name = name;
+		m_ReplacementTemplate = replacementTemplate;
 
 		// Load mesh
 		m_Mesh = new CMesh();
@@ -91,6 +92,10 @@ public:
 		return m_Mesh;
 	}
 
+	const string& GetReplacementTemplate()
+	{
+		return m_ReplacementTemplate;
+	}
 
 /////////////////////////////////////
 //	Private interface
@@ -102,6 +107,8 @@ private:
 
 	// The mesh representing this entity
 	CMesh* m_Mesh;
+
+	string m_ReplacementTemplate;
 };
 
 

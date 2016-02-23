@@ -4,6 +4,7 @@
   Type="Tank"
   Name="Oberon MkII"
   Mesh="HoverTank07.x"
+  ReplacementTemplate="Tree"
   MaxSpeed="18.0"
   Acceleration="3.5"
   TurnSpeed="4.3"

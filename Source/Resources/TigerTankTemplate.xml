@@ -4,6 +4,7 @@
   Type="Tank"
   Name="Tiger Tank"
   Mesh="HoverTank05.x"
+  ReplacementTemplate="Tree"
   MaxSpeed="5.0"
   Acceleration="0.6"
   TurnSpeed="0.5"

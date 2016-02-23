@@ -55,14 +55,14 @@ public:
 
 	// Create a base entity template with the given type, name and mesh. Returns the new entity
 	// template pointer
-	CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const string& name, const string& mesh	);
+	CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const string& name, const string& mesh, const string& replacementTemplate	);
 
 	CEntityTemplate* CEntityManager::CreateTemplate(const string& file);
 
 	// Create a tank template with the given type, name, mesh and stats. Returns the new entity
 	// template pointer
 	CTankTemplate* CEntityManager::CreateTankTemplate( const string& type, const string& name,
-	                                                   const string& mesh, float maxSpeed,
+	                                                   const string& mesh, const string& replacementTemplate, float maxSpeed,
 	                                                   float acceleration, float turnSpeed,
 	                                                   float turretTurnSpeed, int maxHP, 
 													   int shellDamage, float shellSpeed, float shellLifetime,

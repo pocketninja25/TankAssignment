@@ -4,4 +4,6 @@
   Type="Ammo"
   Name="AmmoCrate"
   Mesh="Box.x"
+  ReplacementTemplate=""
+  
 />

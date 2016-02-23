@@ -33,11 +33,11 @@ public:
 	// turn speed and passes the other parameters to construct the base class
 	CTankTemplate
 	(
-		const string& type, const string& name, const string& meshFilename,
+		const string& type, const string& name, const string& meshFilename, const string& replacementTemplate,
 		TFloat32 maxSpeed, TFloat32 acceleration, TFloat32 turnSpeed,
 		TFloat32 turretTurnSpeed, TUInt32 maxHP, 
 		TInt32 shellDamage, TFloat32 shellSpeed, TFloat32 shellLifeTime, TFloat32 radius, TInt32 ammoCapacity
-	) : CEntityTemplate( type, name, meshFilename )
+	) : CEntityTemplate( type, name, meshFilename, replacementTemplate )
 	{
 		// Set tank template values
 		m_MaxSpeed = maxSpeed;

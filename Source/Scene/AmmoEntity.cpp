@@ -44,10 +44,12 @@ CAmmoEntity::CAmmoEntity
 	const CVector3&  position /*= CVector3::kOrigin*/,
 	const CVector3&  rotation /*= CVector3(0.0f, 0.0f, 0.0f)*/,
 	const CVector3&  scale /*= CVector3(1.0f, 1.0f, 1.0f)*/
-) : CEntity( entityTemplate, UID, name, position, rotation, scale )
+) : CEntity( entityTemplate, UID, name, position + CVector3(0.0f, 100.0f, 0.0f), rotation, scale )
 {
 	m_RefillSize = refillSize;
 	m_Height = position.y;
+	m_FallSpeed = 20.0f;
+	landed = false;
 	m_SinWave = 0.0f;
 }
 
@@ -55,10 +57,24 @@ CAmmoEntity::CAmmoEntity
 // Return false if the entity is to be destroyed
 bool CAmmoEntity::Update(TFloat32 updateTime)
 {
-	m_SinWave += updateTime;
-	Position().y = m_Height + sin(m_SinWave);
-	// Rotate on the spot and bob up and down (for effect)
-	Matrix().RotateY((kfPi / 3) * updateTime);
+
+	if (!landed)
+	{
+		Position().y -= m_FallSpeed * updateTime;
+
+		if (Position().y < m_Height)
+		{
+			landed = true;
+		}
+	}
+	else
+	{
+		m_SinWave += updateTime;
+		Position().y = m_Height + sin(m_SinWave);
+		// Rotate on the spot and bob up and down (for effect)
+		Matrix().RotateY((kfPi / 3) * updateTime);
+
+	}
 
 	//TODO: Collision detection
 	TInt32 enumID;

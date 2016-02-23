@@ -4,6 +4,7 @@
   Type="Tank"
   Name="Rogue Scout"
   Mesh="HoverTank02.x"
+  ReplacementTemplate="Tree"
   MaxSpeed="35.0"
   Acceleration="1.6"
   TurnSpeed="2.0"

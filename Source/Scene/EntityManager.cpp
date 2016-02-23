@@ -40,18 +40,14 @@ CEntityManager::~CEntityManager()
 void CEntityManager::CreateScene(const string& file)
 {
 	m_XMLReader.LoadScene(file);
-
-	
-
-
 }
 
 // Create a base entity template with the given type, name and mesh. Returns the new entity
 // template pointer
-CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const string& name, const string& mesh )
+CEntityTemplate* CEntityManager::CreateTemplate( const string& type, const string& name, const string& mesh, const string& replacementTemplate )
 {
 	// Create new entity template
-	CEntityTemplate* newTemplate = new CEntityTemplate( type, name, mesh );
+	CEntityTemplate* newTemplate = new CEntityTemplate( type, name, mesh, replacementTemplate);
 
 	// Add the template name / template pointer pair to the map
 	m_Templates[name] = newTemplate;
@@ -69,12 +65,12 @@ CEntityTemplate* CEntityManager::CreateTemplate(const string & file)
 // Create a tank template with the given type, name, mesh and stats. Returns the new entity
 // template pointer
 CTankTemplate* CEntityManager::CreateTankTemplate(const string& type, const string& name,
-	const string& mesh, float maxSpeed,
+	const string& mesh, const string& replacementTemplate, float maxSpeed,
 	float acceleration, float turnSpeed,
 	float turretTurnSpeed, int maxHP, int shellDamage, float shellSpeed, float shellLifetime, float radius, int ammoCapacity)
 {
 	// Create new tank template
-	CTankTemplate* newTemplate = new CTankTemplate(type, name, mesh, maxSpeed, acceleration,
+	CTankTemplate* newTemplate = new CTankTemplate(type, name, mesh, replacementTemplate, maxSpeed, acceleration,
 		turnSpeed, turretTurnSpeed, maxHP, shellDamage, shellSpeed, shellLifetime, radius, ammoCapacity);
 
 	// Add the template name / template pointer pair to the map
@@ -305,6 +301,15 @@ void CEntityManager::UpdateAllEntities( float updateTime )
 		// Update entity, if it returns false, then destroy it
 		if (!m_Entities[entity]->Update( updateTime ))
 		{
+			CEntity* thisEntity = m_Entities[entity];
+			string replacementString = thisEntity->Template()->GetReplacementTemplate();
+			if (replacementString != "")
+			{
+				CEntityTemplate* replacement = GetTemplate(thisEntity->Template()->GetReplacementTemplate());
+				CVector3 position, rotation, scale;
+				thisEntity->Matrix().DecomposeAffineEuler(&position, &rotation, &scale);
+				CreateEntity(replacement->GetName(), m_Entities[entity]->GetName() + " Wreckage", position, rotation, scale);
+			}
 			DestroyEntity(m_Entities[entity]->GetUID());
 		}
 		else
